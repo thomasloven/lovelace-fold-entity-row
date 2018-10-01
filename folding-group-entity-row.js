@@ -68,24 +68,36 @@ class FoldingGroupRow extends Polymer.Element {
     this.appendChild(this.dummy);
 
     let divs = this.dummy.shadowRoot.querySelector("ha-card").querySelector("#states");
-    let head = divs.firstChild.firstChild;
+    let head = divs.firstChild;
     head.style.width = '100%';
-    this._addHeader(head);
+    this._addHeader(head, conf.shift());
     while(divs.firstChild) {
-      this._addRow(divs.firstChild);
+      this._addRow(divs.firstChild, conf.shift());
     }
 
     this.removeChild(this.dummy);
   }
 
-  _addHeader(row)
+  _addHeader(row, data)
   {
     this.$.head.appendChild(row);
   }
-  _addRow(row)
+  _addRow(row, data)
   {
     let item = document.createElement('ul');
     item.appendChild(row);
+    row.classList.add('state-card-dialog');
+    row.addEventListener('click', (e) => {
+      let ev = new Event('hass-more-info', {
+        bubbles: true,
+        cancelable: false,
+        composed: true,
+      });
+      const entityId = data.entity;
+      ev.detail = { entityId };
+      this.dispatchEvent(ev);
+      e.stopPropagation();
+    });
     this.$.rows.appendChild(item);
   }
 
