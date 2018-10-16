@@ -1,7 +1,7 @@
-folding-group-entity-row
+fold-entity-row
 ========================
 
-Display all entities in a group on a lovelace entities card - and fold it away when you don't want to see it.
+Make a group from entities in a lovelace entities card - and fold them away when you don't want to see them.
 
 ---
 
@@ -16,25 +16,56 @@ views:
     - type: entities
       entities:
       - entity: group.my_group
-        type: custom:folding-group-entity-row
+        head: input_select.tod
+        items:
+        - switch.tod_dark
+        - entity: input_datetime.tod_morning
+          type: custom:time-input-row
+        ...
 ```
 
-![folding_group_demo1](https://user-images.githubusercontent.com/1299821/46227495-ac033180-c35f-11e8-8c6c-acdb74bc5087.png)
+![closed open](https://user-images.githubusercontent.com/1299821/47018117-5b0f7d80-d154-11e8-91b1-3405cd5c0662.jpg)
 
-### Other options
+### Options
 
-- `config:` Config options to apply to each row in the group - same as for entity card
-- `group_config:` Config options to apply to the group row - same as for entity card
+- `head` (required) - The entity that will be on the top of the list. Can be any type of entity that works in a entities card, with any options. If the entity is a group, the items of the fold will be automatically populated by the entities in the group.
+- `items` - Entities in the fold. Can be any kind of entity that works in an entities card, with any options.
+- `group_config` - configuration options that will be applied to every entity in the fold.
+- `open` - set to `true` to have the fold opened by default.
 
-Example:
+---
+
 ```yaml
-      - entity: group.my_group
-        type: custom:folding-group-entity-row
-        config:
-          secondary_info: entity-id
-        group_config:
-          secondary_info: last-changed
+  - type: entities
+    entities:
+      - type: custom:fold-entity-row
+        head: group.flux_switches
+      - type: custom:fold-entity-row
+        head:
+          entity: light.taklampa_vardagsrum
           type: custom:toggle-lock-entity-row
+        group_config:
+          icon: mdi:fan
+        items:
+          - light.takflakt1
+          - light.takflakt2
+          - entity: light.takflakt3
+            type: custom:slider-entity-row
+          - light.takflakt4
+      - type: custom:fold-entity-row
+        head:
+          type: divider
+          style:
+            height: 30px
+            margin: 4px 0
+            background: center / contain url("/local/images/divider.png")
+            background-repeat: no-repeat
+        items:
+          - light.takflakt1
+          - light.takflakt2
+          - light.takflakt3
+          - light.takflakt4
 ```
 
-![folding_group_demo2](https://user-images.githubusercontent.com/1299821/46227497-adccf500-c35f-11e8-9942-769bbd4931c1.png)
+![special options](https://user-images.githubusercontent.com/1299821/47018785-cf96ec00-d155-11e8-8156-d54524d387ad.jpg)
+
