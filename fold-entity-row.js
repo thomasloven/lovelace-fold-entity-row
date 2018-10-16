@@ -135,4 +135,3 @@ class FoldRow extends Polymer.Element {
 }
 
 customElements.define('fold-entity-row', FoldRow);
-customElements.define('folding-group-entity-row', FoldRow);
