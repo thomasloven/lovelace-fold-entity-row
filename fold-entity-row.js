@@ -114,6 +114,11 @@ class FoldRow extends Polymer.Element {
   _addHeader(row, data)
   {
     this.$.head.insertBefore(row, this.$.head.firstChild);
+    if(row.firstChild.tagName === 'HUI-SECTION-ROW'){
+      let div = row.firstChild.shadowRoot.querySelector('.divider');
+      div.style.marginRight = '-53px';
+      // div.parentNode.removeChild(div);
+    }
   }
   _addRow(row, data)
   {
