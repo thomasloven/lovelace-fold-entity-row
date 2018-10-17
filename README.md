@@ -7,7 +7,7 @@ Make a group from entities in a lovelace entities card - and fold them away when
 
 ```yaml
 resources:
-  - url: /local/folding-group-entity-row.js
+  - url: /local/fold-entity-row.js
     type: js
 
 views:
