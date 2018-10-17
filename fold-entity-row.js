@@ -32,7 +32,20 @@ class FoldRow extends Polymer.Element {
       .toggle ha-icon {
         flex: 0 0 40px;
       }
+      #bar.closed {
+        max-height: 0;
+      }
+      #bar.open {
+        height: 1px;
+        background-color: var(--secondary-text-color);
+        opacity: 0.25;
+        margin-left: -16px;
+        margin-right: -16px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
     </style>
+    <div id=topbar class=nobar></div>
     <div id=head>
       <div class=toggle on-click="doToggle">
       <ha-icon icon="[[_icon]]"></ha-icon>
@@ -40,14 +53,17 @@ class FoldRow extends Polymer.Element {
     </div>
     <li id="rows" class="closed">
     </li>
+    <div id="bar" class=closed></div>
     `
   }
 
   update() {
-    this._icon = this.closed ? 'mdi:menu-right' : 'mdi:menu-down';
-    if(this.$)
+    this._icon = this.closed ? 'mdi:chevron-down' : 'mdi:chevron-up';
+    if(this.$) {
       this.$.rows.className = this.closed ? 'closed' : 'open';
-
+      if(!this.closed) console.log(this.parentNode);
+      this.$.bar.className = (this.closed || !this.parentNode.nextSibling)? "closed": "open";
+    }
   }
 
   doToggle(ev) {
@@ -97,7 +113,7 @@ class FoldRow extends Polymer.Element {
 
   _addHeader(row, data)
   {
-    this.$.head.appendChild(row);
+    this.$.head.insertBefore(row, this.$.head.firstChild);
   }
   _addRow(row, data)
   {
