@@ -15,7 +15,7 @@ views:
     cards:
     - type: entities
       entities:
-      - entity: group.my_group
+      - type: custom:fold-entity-row
         head: input_select.tod
         items:
         - switch.tod_dark
