@@ -53,7 +53,6 @@ class FoldRow extends Polymer.Element {
     </div>
     <li id="rows" class="closed">
     </li>
-    <div id="bar" class=closed></div>
     `
   }
 
@@ -61,7 +60,6 @@ class FoldRow extends Polymer.Element {
     this._icon = this.closed ? 'mdi:chevron-down' : 'mdi:chevron-up';
     if(this.$) {
       this.$.rows.className = this.closed ? 'closed' : 'open';
-      this.$.bar.className = (this.closed || !this.parentNode.nextSibling)? "closed": "open";
     }
   }
 
@@ -111,8 +109,6 @@ class FoldRow extends Polymer.Element {
         child = divs.firstChild;
       }
 
-      this.removeChild(this.dummy);
-
       this.update();
     });
 
@@ -160,6 +156,8 @@ class FoldRow extends Polymer.Element {
 
   set hass(hass) {
     this._hass = hass;
+  if(this.dummy)
+  this.dummy.hass = hass;
     if(this.items && this.items.forEach)
       this.items.forEach( (c) => c.hass = hass);
   }
