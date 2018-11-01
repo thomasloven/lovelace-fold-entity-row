@@ -94,40 +94,46 @@ class FoldRow extends Polymer.Element {
     this.dummy.hass = this._hass;
     this.appendChild(this.dummy);
 
+    const nextChild = (root) => {
+      let child = root.firstChild;
+      while(child && child.nodeType != 1) child = child.nextSibling;
+      return child;
+    }
+
     this.dummy.updateComplete.then( () => {
 
       let divs = this.dummy.shadowRoot.querySelector("ha-card").querySelector("#states");
-      let child = divs.firstChild;
-      while(child.nodeType != 1) child = child.nextSibling;
-      child.style.width = '100%';
-      this._addHeader(child, conf.shift());
-      child = divs.firstChild;
-      while(child) {
-        while(child && child.nodeType != 1) child = child.nextSibling;
-        if(!child) break;
+      let child = nextChild(divs)
+      this._addHeader(child, conf.shift())
+      while(child = nextChild(divs)) {
         this._addRow(child, conf.shift());
-        child = divs.firstChild;
       }
 
       this.update();
     });
-
   }
-
-
 
   _addHeader(row, data)
   {
-    this.items.push(row);
     this.$.head.insertBefore(row, this.$.head.firstChild);
+    row.style.width = '100%';
+    if(row.tagName === 'DIV') {
+      row = row.children[0];
+    }
+    this.items.push(row);
     if(row.tagName === 'HUI-SECTION-ROW'){
-      let div = row.shadowRoot.querySelector('.divider');
-      div.style.marginRight = '-53px';
+      row.updateComplete.then( () => {
+        row.shadowRoot.querySelector('.divider').style.marginRight = '-53px';
+      });
     }
   }
   _addRow(row, data)
   {
-    this.items.push(row);
+    if(row.tagName === 'DIV') {
+      this.items.push(row.children[0]);
+    } else {
+      this.items.push(row);
+    }
     let item = document.createElement('ul');
     item.appendChild(row);
     row.classList.add('state-card-dialog');
