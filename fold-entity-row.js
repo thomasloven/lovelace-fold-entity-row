@@ -122,9 +122,21 @@ class FoldRow extends Polymer.Element {
     }
     this.items.push(row);
     if(row.tagName === 'HUI-SECTION-ROW'){
-      row.updateComplete.then( () => {
+      if(row.updateComplete) {
+        row.updateComplete.then( () => {
+          row.shadowRoot.querySelector('.divider').style.marginRight = '-53px';
+          if (!this.parentElement.previousElementSibling) {
+            row.shadowRoot.querySelector('.divider').style.visibility = 'hidden';
+            row.shadowRoot.querySelector('.divider').style.marginTop = '0';
+          }
+        });
+      } else {
         row.shadowRoot.querySelector('.divider').style.marginRight = '-53px';
-      });
+        if (!this.parentElement.previousElementSibling) {
+          row.shadowRoot.querySelector('.divider').style.visibility = 'hidden';
+          row.shadowRoot.querySelector('.divider').style.marginTop = '0';
+        }
+      }
     }
   }
   _addRow(row, data)
