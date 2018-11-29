@@ -17,7 +17,7 @@ class FoldRow extends Polymer.Element {
         max-height: 0;
       }
       .open > ul {
-        max-height: 40px;
+        max-height: 60px;
       }
       #head {
         display: flex;
