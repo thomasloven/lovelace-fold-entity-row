@@ -104,6 +104,8 @@ class FoldEntityRow extends LitElement {
   }
 
   setConfig(config) {
+    if(!window.cardTools) throw new Error(`Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools`);
+    window.cardTools.checkVersion(0.1);
     this._config = config;
     this._closed = !config.open;
 
