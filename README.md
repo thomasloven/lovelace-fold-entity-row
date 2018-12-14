@@ -3,6 +3,8 @@ fold-entity-row
 
 Make a group from entities in a lovelace entities card - and fold them away when you don't want to see them.
 
+This card requires [card-tools](https://github.com/thomasloven/lovelace-card-tools) to be installed.
+
 ## Options
 
 | Name | Type | Default | Description

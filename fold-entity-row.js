@@ -1,181 +1,126 @@
-class FoldRow extends Polymer.Element {
+var LitElement = LitElement || Object.getPrototypeOf(customElements.get('hui-error-entity-row'));
+class FoldEntityRow extends LitElement {
 
-  static get template() {
-    return Polymer.html`
-    <style>
-      li, ul {
-        list-style: none;
-      }
-      ul {
-        transition: max-height 0.5s;
-        -webkit-transition: max-height 0.5s;
-        overflow: hidden;
-        padding: 0 0 0 40px;
-        margin: 0;
-      }
-      .closed > ul {
-        max-height: 0;
-      }
-      #head {
-        display: flex;
-        align-items: center;
-      }
-      .toggle {
-        width: 40px;
-        height: 40px;
-        align-items: center;
-        display: flex;
-      }
-      .toggle ha-icon {
-        flex: 0 0 40px;
-      }
-      #bar.closed {
-        max-height: 0;
-      }
-      #bar.open {
-        height: 1px;
-        background-color: var(--secondary-text-color);
-        opacity: 0.25;
-        margin-left: -16px;
-        margin-right: -16px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-      }
-    </style>
-    <div id=topbar class=nobar></div>
+  static get properties() {
+    return {
+      _closed: Boolean,
+    };
+  }
+
+  render() {
+    return window.cardTools.litHtml`
+    ${this._renderStyle()}
     <div id=head>
-      <div class=toggle on-click="doToggle">
-      <ha-icon icon="[[_icon]]"></ha-icon>
+      <div id=entity>
+        ${this._head}
+      </div>
+      <div id=toggle>
+        <ha-icon @click=${this._toggle} icon="${this._closed ? "mdi:chevron-down" : "mdi:chevron-up"}"></ha-icon>
       </div>
     </div>
-    <li id="rows" class="closed">
-    </li>
-    `
+    <div id=items ?closed=${this._closed}>
+      ${this._entities}
+    </div>
+    `;
   }
 
-  update() {
-    this._icon = this.closed ? 'mdi:chevron-down' : 'mdi:chevron-up';
-    if(this.$) {
-      this.$.rows.className = this.closed ? 'closed' : 'open';
+  _renderStyle() {
+    return window.cardTools.litHtml`
+    <style>
+    #items {
+      padding: 0 0 0 40px;
+      margin: 0;
     }
+    [closed] > div {
+      overflow: hidden;
+      max-height: 0;
+    }
+    #head {
+      display: flex;
+    }
+    #entity {
+      flex: 1 1 auto;
+      width: 0px;
+    }
+    #toggle {
+      flex: 0 1 40px;
+      display: flex;
+      align-items: center;
+    }
+    ha-icon {
+      width: 40px;
+    }
+    </style>
+    `;
   }
 
-  doToggle(ev) {
-    this.closed = !this.closed;
-    this.update();
-    ev.stopPropagation();
+
+  firstUpdated() {
+    this.hass = this._hass;
   }
 
-
-  ready() {
-    super.ready();
-    let conf = [];
-    let head = this._config.head;
-    let items = this._config.items;
-    if(typeof head === 'string') {
-      head = {entity: head};
-    }
-    conf.push(head);
-    if(head.entity && head.entity.startsWith('group')) {
-      items = this._hass.states[head.entity].attributes.entity_id;
-    }
-    items.forEach((i) => {
-      if(typeof i === 'string') i = {entity: i};
-      conf.push(Object.assign(i, this._config.group_config));
-    });
-
-    this.items = [];
-
-    this.dummy = document.createElement('hui-entities-card');
-    this.dummy.setConfig({entities: conf});
-    this.dummy.hass = this._hass;
-    this.appendChild(this.dummy);
-
-    const nextChild = (root) => {
-      let child = root.firstChild;
-      while(child && child.nodeType != 1) child = child.nextSibling;
-      return child;
-    }
-
-    this.dummy.updateComplete.then( () => {
-
-      let divs = this.dummy.shadowRoot.querySelector("ha-card").querySelector("#states");
-      let child = nextChild(divs)
-      this._addHeader(child, conf.shift())
-      while(child = nextChild(divs)) {
-        this._addRow(child, conf.shift());
-      }
-
-      this.update();
-    });
-  }
-
-  _addHeader(row, data)
+  _toggle()
   {
-    this.$.head.insertBefore(row, this.$.head.firstChild);
-    row.style.width = '100%';
-    if(row.tagName === 'DIV') {
-      row = row.children[0];
-    }
-    this.items.push(row);
-    if(row.tagName === 'HUI-SECTION-ROW'){
-      if(row.updateComplete) {
-        row.updateComplete.then( () => {
-          row.shadowRoot.querySelector('.divider').style.marginRight = '-53px';
-          if (!this.parentElement.previousElementSibling) {
-            row.shadowRoot.querySelector('.divider').style.visibility = 'hidden';
-            row.shadowRoot.querySelector('.divider').style.marginTop = '0';
-          }
-        });
-      } else {
-        row.shadowRoot.querySelector('.divider').style.marginRight = '-53px';
-        if (!this.parentElement.previousElementSibling) {
-          row.shadowRoot.querySelector('.divider').style.visibility = 'hidden';
-          row.shadowRoot.querySelector('.divider').style.marginTop = '0';
-        }
-      }
-    }
+    this._closed = !this._closed;
   }
-  _addRow(row, data)
-  {
-    if(row.tagName === 'DIV') {
-      this.items.push(row.children[0]);
-    } else {
-      this.items.push(row);
-    }
-    let item = document.createElement('ul');
-    item.appendChild(row);
-    row.classList.add('state-card-dialog');
-    row.addEventListener('click', (e) => {
-      let ev = new Event('hass-more-info', {
-        bubbles: true,
-        cancelable: false,
-        composed: true,
+
+  _renderElement(conf, options) {
+    conf = (typeof conf === "string") ? {entity: conf} : conf;
+    conf = Object.assign(conf, options);
+    const element = window.cardTools.createEntityRow(conf);
+
+    const DOMAINS_HIDE_MORE_INFO = [
+      "input_number",
+      "input_select",
+      "input_text",
+      "scene",
+      "weblink",
+    ];
+    if (conf.entity && !DOMAINS_HIDE_MORE_INFO.includes(conf.entity.split(".")[0])) {
+      element.classList.add("state-card-dialog");
+      element.addEventListener("click", () => {
+        window.cardTools.moreInfo(conf.entity);
       });
-      const entityId = data.entity;
-      ev.detail = { entityId };
-      this.dispatchEvent(ev);
-      e.stopPropagation();
-    });
-    this.$.rows.appendChild(item);
+    }
+    return element;
+  }
+
+  _renderHead(conf) {
+    const element = this._renderElement(conf);
+
+    // Stretch the line above section rows
+    if (conf.type && conf.type === "section") {
+      element.updateComplete.then(() => {
+        const divider = element.shadowRoot.querySelector(".divider");
+        divider.style.marginRight = "-53px";
+      });
+    }
+    return element;
+  }
+
+  _renderItem(conf, options) {
+    const element = this._renderElement(conf, options);
+    return window.cardTools.litHtml`<div> ${element} </div>`;
   }
 
   setConfig(config) {
-    if (config.entity || config.config) {
-      throw new Error("Breaking changes have been introduced. Please see https://github.com/thomasloven/lovelace-fold-entity-row");
-    }
     this._config = config;
-    this.closed = !this._config.open;
-    this.update();
+    this._closed = !config.open;
+
+    this._head = this._renderHead(config.head);
+
+    const head = (typeof config.head === "string") ? config.head : config.head.entity;
+    if (head && head.split('.')[0] === "group")
+      config.items = window.cardTools.hass().states[head].attributes.entity_id;
+
+    this._entities = config.items.map((e) => this._renderItem(e, config.group_config));
   }
 
   set hass(hass) {
     this._hass = hass;
-  if(this.dummy)
-  this.dummy.hass = hass;
-    if(this.items && this.items.forEach)
-      this.items.forEach( (c) => c.hass = hass);
+    this._head.hass = hass;
+    this.shadowRoot.querySelectorAll("#items > div > *").forEach((e) => e.hass = hass);
   }
 }
 
-customElements.define('fold-entity-row', FoldRow);
+customElements.define('fold-entity-row', FoldEntityRow);
