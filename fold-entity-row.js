@@ -112,10 +112,11 @@ class FoldEntityRow extends LitElement {
     this._head = this._renderHead(config.head);
 
     const head = (typeof config.head === "string") ? config.head : config.head.entity;
+    let items = config.items
     if (head && head.split('.')[0] === "group")
-      config.items = window.cardTools.hass().states[head].attributes.entity_id;
+      items = window.cardTools.hass().states[head].attributes.entity_id;
 
-    this._entities = config.items.map((e) => this._renderItem(e, config.group_config));
+    this._entities = items.map((e) => this._renderItem(e, config.group_config));
   }
 
   set hass(hass) {
