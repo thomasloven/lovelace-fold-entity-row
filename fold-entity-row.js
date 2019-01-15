@@ -68,6 +68,7 @@ class FoldEntityRow extends LitElement {
     conf = (typeof conf === "string") ? {entity: conf} : conf;
     conf = Object.assign(conf, options);
     const element = window.cardTools.createEntityRow(conf);
+    element.hass = this._hass;
 
     const DOMAINS_HIDE_MORE_INFO = [
       "input_number",
@@ -104,19 +105,25 @@ class FoldEntityRow extends LitElement {
   }
 
   setConfig(config) {
-    if(!window.cardTools) throw new Error(`Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools`);
-    window.cardTools.checkVersion(0.1);
-    this._config = config;
-    this._closed = !config.open;
+    if(!this._config) {
+      if(!window.cardTools) throw new Error(`Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools`);
+      window.cardTools.checkVersion(0.1);
+      this._config = config;
+      this._closed = !config.open;
 
-    this._head = this._renderHead(config.head);
+      this._head = this._renderHead(config.head);
+    }
 
     const head = (typeof config.head === "string") ? config.head : config.head.entity;
     let items = config.items
+    if (config.entities)
+      items = config.entities;
     if (head && head.split('.')[0] === "group")
       items = window.cardTools.hass().states[head].attributes.entity_id;
 
-    this._entities = items.map((e) => this._renderItem(e, config.group_config));
+    if(items)
+      this._entities = items.map((e) => this._renderItem(e, config.group_config));
+    this.requestUpdate();
   }
 
   set hass(hass) {
