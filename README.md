@@ -60,3 +60,38 @@ entities:
 ```
 
 ![folding groups](https://user-images.githubusercontent.com/1299821/47855259-5d283c00-dde4-11e8-8405-94c269e53935.png)
+
+
+#### Use with entity-filter
+The `items` list can be populated by `entity-filter` using a trick:
+
+```yaml
+type: entities
+title: Entity Filter Fold
+entities:
+  - type: custom:hui-entity-filter-card
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
+    state_filter:
+      - "on"
+    card:
+      type: custom:fold-entity-row
+      head:
+        type: section
+        label: Lit lamps
+
+  - type: custom:hui-entity-filter-card
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
+    state_filter:
+      - "off"
+    card:
+      type: custom:fold-entity-row
+      head:
+        type: section
+        label: Unlit lamps
+```
