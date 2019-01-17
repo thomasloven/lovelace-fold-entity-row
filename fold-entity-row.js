@@ -68,7 +68,7 @@ class FoldEntityRow extends LitElement {
     conf = (typeof conf === "string") ? {entity: conf} : conf;
     conf = Object.assign(conf, options);
     const element = window.cardTools.createEntityRow(conf);
-    element.hass = this._hass;
+    if(this._hass) element.hass = this._hass;
 
     const DOMAINS_HIDE_MORE_INFO = [
       "input_number",
