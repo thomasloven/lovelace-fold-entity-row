@@ -5,6 +5,8 @@ Make a group from entities in a lovelace entities card - and fold them away when
 
 This card requires [card-tools](https://github.com/thomasloven/lovelace-card-tools) to be installed.
 
+For installation instructions [see this guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
+
 ## Options
 
 | Name | Type | Default | Description

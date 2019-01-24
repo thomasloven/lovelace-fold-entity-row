@@ -1,5 +1,5 @@
-var LitElement = LitElement || Object.getPrototypeOf(customElements.get('hui-error-entity-row'));
-class FoldEntityRow extends LitElement {
+customElements.whenDefined('card-tools').then(() => {
+class FoldEntityRow extends cardTools.litElement() {
 
   static get properties() {
     return {
@@ -8,7 +8,7 @@ class FoldEntityRow extends LitElement {
   }
 
   render() {
-    return window.cardTools.litHtml`
+    return cardTools.litHtml()`
     ${this._renderStyle()}
     <div id=head>
       <div id=entity>
@@ -25,7 +25,7 @@ class FoldEntityRow extends LitElement {
   }
 
   _renderStyle() {
-    return window.cardTools.litHtml`
+    return cardTools.litHtml()`
     <style>
     #items {
       padding: 0 0 0 40px;
@@ -67,7 +67,7 @@ class FoldEntityRow extends LitElement {
   _renderElement(conf, options) {
     conf = (typeof conf === "string") ? {entity: conf} : conf;
     conf = Object.assign(conf, options);
-    const element = window.cardTools.createEntityRow(conf);
+    const element = cardTools.createEntityRow(conf);
     if(this._hass) element.hass = this._hass;
 
     const DOMAINS_HIDE_MORE_INFO = [
@@ -80,7 +80,7 @@ class FoldEntityRow extends LitElement {
     if (conf.entity && !DOMAINS_HIDE_MORE_INFO.includes(conf.entity.split(".")[0])) {
       element.classList.add("state-card-dialog");
       element.addEventListener("click", () => {
-        window.cardTools.moreInfo(conf.entity);
+        cardTools.moreInfo(conf.entity);
       });
     }
     return element;
@@ -101,13 +101,13 @@ class FoldEntityRow extends LitElement {
 
   _renderItem(conf, options) {
     const element = this._renderElement(conf, options);
-    return window.cardTools.litHtml`<div> ${element} </div>`;
+    return cardTools.litHtml()`<div> ${element} </div>`;
   }
 
   setConfig(config) {
     if(!this._config) {
-      if(!window.cardTools) throw new Error(`Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools`);
-      window.cardTools.checkVersion(0.1);
+      if(!cardTools) throw new Error(`Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools`);
+      cardTools.checkVersion(0.1);
       this._config = config;
       this._closed = !config.open;
 
@@ -119,7 +119,7 @@ class FoldEntityRow extends LitElement {
     if (config.entities)
       items = config.entities;
     if (head && head.split('.')[0] === "group")
-      items = window.cardTools.hass().states[head].attributes.entity_id;
+      items = cardTools.hass().states[head].attributes.entity_id;
 
     if(items)
       this._entities = items.map((e) => this._renderItem(e, config.group_config));
@@ -134,3 +134,11 @@ class FoldEntityRow extends LitElement {
 }
 
 customElements.define('fold-entity-row', FoldEntityRow);
+});
+
+window.setTimeout(() => {
+  if(customElements.get('card-tools')) return;
+  customElements.define('fold-entity-row', class extends HTMLElement{
+    setConfig() { throw new Error("Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools");}
+  });
+}, 2000);
