@@ -1,4 +1,5 @@
 customElements.whenDefined('card-tools').then(() => {
+let cardTools = customElements.get('card-tools');
 class FoldEntityRow extends cardTools.LitElement {
 
   static get properties() {
