@@ -16,6 +16,7 @@ For installation instructions [see this guide](https://github.com/thomasloven/ha
 | items | list | none | Entites or rows to put in the fold
 | group_config | object | none | Extra options to put on each item in the list
 | open | boolean | false | Set to true to have the fold opened by default
+| no_padding | boolean | false | Set to true to have the padding for folded items turned off
 
 ---
 
