@@ -1,99 +1,134 @@
 fold-entity-row
-========================
+===============
 
-Make a group from entities in a lovelace entities card - and fold them away when you don't want to see them.
-
-This card requires [card-tools](https://github.com/thomasloven/lovelace-card-tools) to be installed.
+Fold away and hide rows in lovelace [entities](https://www.home-assistant.io/lovelace/entities/) cards.
 
 For installation instructions [see this guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
 
-## Options
+Install `fold-entity-row.js` as a `module`.
 
-| Name | Type | Default | Description
-| ---- | ---- | ------- | -----------
-| type | string | **Required** | `custom:fold-entity-row`
-| head | entity/object | **Required** | The entity or row that should be the header
-| items | list | none | Entites or rows to put in the fold
-| group_config | object | none | Extra options to put on each item in the list
-| open | boolean | false | Set to true to have the fold opened by default
+## Usage
+Add this to an entities card:
+
+```yaml
+type: entities
+entities:
+    - light.bed_light
+    - type: custom:fold-entity-row
+      head: light.bed_light
+      entities:
+        - light.bed_light
+        - light.ceiling_lights
+        - light.kitchen_lights
+```
+
+This will show the row specified in `head:` with an arrow next to it. When clicked, the rows specified in `entities:` will be revealed.
+
+![fold-entity-row](https://user-images.githubusercontent.com/1299821/59793417-ceb2ed00-92d6-11e9-9a7a-ad0a1a85b5e6.png)
+
+### Options
+
+- `head:` and any row in `entities:` can be customized in exactly the same ways as ordinary [entities](https://www.home-assistant.io/lovelace/entities/) card rows.
+
+```yaml
+type: custom:fold-entity-row
+head:
+  type: section
+  label: Customizations
+entities:
+  - light.bed_light
+  - entity: light.ceiling_lights
+    name: A light
+  - light.kitchen_lights
+```
+
+- Options specified in `group_config:` will be applied to all rows in the fold.
+
+```yaml
+type: custom:fold-entity-row
+head:
+  type: section
+  label: group_config
+group_config:
+  secondary_info: last-changed
+  icon: mdi:desk-lamp
+entities:
+  - light.bed_light
+  - light.ceiling_lights
+  - light.kitchen_lights
+```
+
+- The left side padding can be adjusted by the `padding:` parameter (value in pixels).
+
+```yaml
+type: custom:fold-entity-row
+head:
+  type: section
+  label: padding
+padding: 5
+entities:
+  - light.bed_light
+  - light.ceiling_lights
+  - light.kitchen_lights
+```
+
+- Setting `head:` to a group will populate the entities list with the entities of that group.
+
+```yaml
+type: custom:fold-entity-row
+head: group.all_lights
+```
+
+- Setting `open:` to true will make the fold open by default.
+
+```yaml
+type: custom:fold-entity-row
+head:
+  type: section
+  label: open
+open: true
+entities:
+  - light.bed_light
+  - light.ceiling_lights
+  - light.kitchen_lights
+```
+
+![options](https://user-images.githubusercontent.com/1299821/59793730-8ba54980-92d7-11e9-894b-50d8a437638a.png)
+
+### Advanced
+
+- Folds can be nested
+
+```yaml
+type: custom:fold-entity-row
+head:
+  type: section
+  label: Nested
+entities:
+  - type: custom:fold-entity-row
+    head: light.bed_light
+    entities:
+      - type: custom:fold-entity-row
+        head: light.bed_light
+        entities:
+          - light.bed_light
+```
+
+- Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
+
+```yaml
+type: custom:auto-entities
+filter:
+  include:
+    - domain: sensor
+card:
+  type: custom:fold-entity-row
+  head:
+    type: section
+    label: Automatically populated
+```
+
+![advanced](https://user-images.githubusercontent.com/1299821/59793890-ed65b380-92d7-11e9-9ed6-8dc1c15d749b.png)
 
 ---
-
-```yaml
-type: entities
-title: Folding entities
-entities:
-  - light.bed_light
-  - type: custom:fold-entity-row
-    head: sensor.yr_symbol
-    items:
-      - sensor.outside_humidity
-      - sensor.outside_temperature
-  - light.bed_light
-  - type: custom:fold-entity-row
-    head:
-      type: section
-      label: Lights
-    group_config:
-      secondary_info: last-changed
-    items:
-      - light.bed_light
-      - light.ceiling_lights
-      - light.kitchen_lights
-  - light.bed_light
-```
-
-![fold-entity-row](https://user-images.githubusercontent.com/1299821/47855185-281be980-dde4-11e8-92a6-643e8a47d8e9.png)
-
-### Groups will populate the fold automatically
-
-If the head is a group, `items:` will be ignored and the fold will instead be filled with the entities in the group.
-
-```yaml
-type: entities
-title: Folding groups
-entities:
-  - type: custom:fold-entity-row
-    head: group.all_lights
-  - type: custom:fold-entity-row
-    head: group.all_scripts
-  - type: custom:fold-entity-row
-    head: group.all_automations
-```
-
-![folding groups](https://user-images.githubusercontent.com/1299821/47855259-5d283c00-dde4-11e8-8405-94c269e53935.png)
-
-
-#### Use with entity-filter
-The `items` list can be populated by `entity-filter` using a trick:
-
-```yaml
-type: entities
-title: Entity Filter Fold
-entities:
-  - type: custom:hui-entity-filter-card
-    entities:
-      - light.bed_light
-      - light.ceiling_lights
-      - light.kitchen_lights
-    state_filter:
-      - "on"
-    card:
-      type: custom:fold-entity-row
-      head:
-        type: section
-        label: Lit lamps
-
-  - type: custom:hui-entity-filter-card
-    entities:
-      - light.bed_light
-      - light.ceiling_lights
-      - light.kitchen_lights
-    state_filter:
-      - "off"
-    card:
-      type: custom:fold-entity-row
-      head:
-        type: section
-        label: Unlit lamps
-```
+<a href="https://www.buymeacoffee.com/uqD6KHCdJ" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/white_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
