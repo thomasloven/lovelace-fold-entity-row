@@ -78,7 +78,11 @@ class FoldEntityRow extends LitElement {
       </div>
       <div id="toggle">
         <ha-icon
-        @click="${() => this.open = !this.open}"
+        @click="${(ev) => {
+          ev.stopPropagation();
+          this.open = !this.open;
+          }
+        }"
         icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
         ></ha-icon>
       </div>
