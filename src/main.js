@@ -50,12 +50,12 @@ class FoldEntityRow extends LitElement {
 
     const el = createEntityRow(conf);
     if (conf.entity && !DOMAINS_HIDE_MORE_INFO.includes(conf.entity.split(".",1)[0])) {
-      el.classList.add("state-card-dialog");
       el.addEventListener("click", () => {
         fireEvent("hass-more-info", {entityId: conf.entity}, this);
       });
     } else if (head) {
       el.addEventListener("click", () => this.open = !this.open);
+      el.classList.add("fold-toggle");
     }
 
     if (head && conf.type === "section")
@@ -72,7 +72,9 @@ class FoldEntityRow extends LitElement {
     if (this._entities)
       this._entities.forEach((e) => e.hass = this.hass);
     return html`
-    <div id="head">
+    <div id="head"
+      ?open=${this.open}
+    >
       <div id="entity">
         ${this._head}
       </div>
@@ -84,6 +86,7 @@ class FoldEntityRow extends LitElement {
           }
         }"
         icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
+        class="fold-toggle"
         ></ha-icon>
       </div>
       </div>
@@ -129,6 +132,12 @@ class FoldEntityRow extends LitElement {
       }
       .state-card-dialog {
         cursor: pointer;
+      }
+      .fold-toggle {
+        cursor: s-resize;
+      }
+      .fold-toggle[open], #head[open] .fold-toggle{
+        cursor: n-resize;
       }
 
     `;
