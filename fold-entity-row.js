@@ -41,7 +41,7 @@
         max-height: 0;
       }
       #items[open] {
-        overflow: none;
+        overflow: visible;
         max-height: none;
       }
       ha-icon {
