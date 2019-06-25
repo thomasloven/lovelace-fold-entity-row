@@ -1,13 +1,15 @@
 import { LitElement, html, css } from "/card-tools/lit-element.js";
-import { fireEvent } from "/card-tools/event.js";
-import { createEntityRow } from "/card-tools/lovelace-element.js";
+import { moreInfo } from "/card-tools/more-info.js";
 import { hass } from "/card-tools/hass.js";
+import "/card-tools/card-maker.js";
+import { DOMAINS_HIDE_MORE_INFO } from "/card-tools/lovelace-element.js";
 
 class FoldEntityRow extends LitElement {
   static get properties() {
     return {
       hass: {},
       open: Boolean,
+      items: {},
     };
   }
 
@@ -19,86 +21,98 @@ class FoldEntityRow extends LitElement {
     };
 
     this._config = Object.assign({}, defaults, config);
-    this.open = this._config.open;
+    this.open = this.open || this._config.open;
 
-    this._head = this._renderRow(this._config.head, true);
-
-    let items = this._config.items;
+    // Items are taken from the first available of the following
+    // - The group specified as head
+    // - config entities: (this allows auto-population of the list)
+    // - config items: (for backwards compatibility - not recommended)
+    this.items = this._config.items;
     if (this._config.entities)
-      items = this._config.entities;
+      this.items = this._config.entities;
     if (typeof this._config.head === "string" && this._config.head.startsWith("group."))
-      items = hass().states[this._config.head].attributes.entity_id;
-    if (items)
-      this._entities = items.map((e) => this._renderRow(e));
+      this.items = hass().states[this._config.head].attributes.entity_id;
   }
 
-  _renderRow(conf, head=false) {
-    conf = (typeof conf === "string") ? {entity: conf} : conf;
+  clickRow(ev) {
+    const config = ev.target._config;
+    const entity = config.entity || (typeof config === "string" ? config : null);
 
-    if (!head) {
-      conf = Object.assign({}, this._config.group_config, conf);
+    ev.stopPropagation();
+    if(this.hasMoreInfo(config))
+      moreInfo(entity)
+    else if(ev.target.parentElement.hasAttribute('head')) {
+      this.toggle(ev);
     }
+  }
 
-    const DOMAINS_HIDE_MORE_INFO = [
-      "input_number",
-      "input_select",
-      "input_text",
-      "input_datetime",
-      "scene",
-      "weblink",
-    ];
+  toggle(ev) {
+    if(ev)
+      ev.stopPropagation();
+    this.open = !this.open;
+  }
 
-    const el = createEntityRow(conf);
-    if (conf.entity && !DOMAINS_HIDE_MORE_INFO.includes(conf.entity.split(".",1)[0])) {
-      el.addEventListener("click", () => {
-        fireEvent("hass-more-info", {entityId: conf.entity}, this);
-      });
-    } else if (head) {
-      el.addEventListener("click", () => this.open = !this.open);
-      el.classList.add("fold-toggle");
-    }
+  hasMoreInfo(config) {
+    const entity = config.entity || (typeof config === "string" ? config : null);
+    if(entity && !DOMAINS_HIDE_MORE_INFO.includes(entity.split(".",1)[0]))
+      return true;
+    return false;
+  }
 
-    if (head && conf.type === "section")
-      el.updateComplete.then(() => {
-        const divider = el.shadowRoot.querySelector(".divider");
-        divider.style.marginRight = "-56px";
-      });
-
-    return el;
+  firstUpdated() {
+    // If the header is a section-row, adjust the divider line a bit to look better
+    const headRow = this.shadowRoot.querySelector("#head > entity-row-maker");
+    headRow.updateComplete.then(() => {
+     const element = headRow.querySelector("hui-section-row");
+      if(element) {
+        element.updateComplete.then(() => {
+          element.shadowRoot.querySelector(".divider").style.marginRight = "-56px";
+        });
+      }
+    });
   }
 
   render() {
-    this._head.hass = this.hass;
     if (this._entities)
       this._entities.forEach((e) => e.hass = this.hass);
+
+    const fix_config = (config) => {
+      if(typeof config === "string")
+        config = {entity: config};
+      return Object.assign({}, this._config.group_config, config);
+    }
+
     return html`
-    <div id="head"
-      ?open=${this.open}
-    >
-      <div id="entity">
-        ${this._head}
-      </div>
-      <div id="toggle">
-        <ha-icon
-        @click="${(ev) => {
-          ev.stopPropagation();
-          this.open = !this.open;
-          }
-        }"
+    <div id="head" ?open=${this.open}>
+      <entity-row-maker
+        .config=${this._config.head}
+        .hass=${this.hass}
+        @click=${this.clickRow}
+        head
+      ></entity-row-maker>
+      <ha-icon
+        @click=${this.toggle}
         icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
-        class="fold-toggle"
-        ></ha-icon>
-      </div>
-      </div>
+      ></ha-icon>
+    </div>
+
     <div id="items"
-    ?open=${this.open}
-    style="
-      ${this._config.padding
-        ? `padding-left: ${this._config.padding}px;`
-        : ''}
-      "
+      ?open=${this.open}
+      style=
+        ${this._config.padding
+          ? `padding-left: ${this._config.padding}px;`
+          : ''
+        }
     >
-      ${this._entities}
+      ${this.items.map(i => html`
+        <entity-row-maker
+          .config=${fix_config(i)}
+          .hass=${this.hass}
+          @click=${this.clickRow}
+          class=${this.hasMoreInfo(i) ? 'state-card-dialog' : ''}
+          head
+        ></entity-row-maker>
+      `)}
     </div>
     `;
   }
@@ -107,16 +121,17 @@ class FoldEntityRow extends LitElement {
     return css`
       #head {
         display: flex;
-      }
-      #entity {
-        flex: 1 1 auto;
-        width: 0px;
-      }
-      #toggle {
-        flex 0 1 40px;
-        display: flex;
+        cursor: pointer;
         align-items: center;
       }
+      #head entity-row-maker {
+        flex-grow: 1;
+      }
+      #head ha-icon {
+        width: 40px;
+        cursor: pointer
+      }
+
       #items {
         padding: 0;
         margin: 0;
@@ -127,19 +142,9 @@ class FoldEntityRow extends LitElement {
         overflow: visible;
         max-height: none;
       }
-      ha-icon {
-        width: 40px;
-      }
       .state-card-dialog {
         cursor: pointer;
       }
-      .fold-toggle {
-        cursor: s-resize;
-      }
-      .fold-toggle[open], #head[open] .fold-toggle{
-        cursor: n-resize;
-      }
-
     `;
   }
 
