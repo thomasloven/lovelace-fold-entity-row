@@ -35,7 +35,7 @@ class FoldEntityRow extends LitElement {
   }
 
   clickRow(ev) {
-    const config = ev.target._config;
+    const config = ev.target.parentElement._config;
     const entity = config.entity || (typeof config === "string" ? config : null);
 
     ev.stopPropagation();

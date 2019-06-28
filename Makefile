@@ -1,5 +1,5 @@
 AUTHOR := Thomas Lovén
-CARD_TOOLS := $(PWD)/../card-tools
+CARD_TOOLS := $(PWD)/../../../custom-cards/card-tools
 
 PACKAGE := $(shell basename $(CURDIR))
 PACKAGE := $(PACKAGE:lovelace-%=%)
