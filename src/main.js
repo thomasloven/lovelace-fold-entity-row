@@ -110,7 +110,6 @@ class FoldEntityRow extends LitElement {
           .hass=${this.hass}
           @click=${this.clickRow}
           class=${this.hasMoreInfo(i) ? 'state-card-dialog' : ''}
-          head
         ></entity-row-maker>
       `)}
     </div>

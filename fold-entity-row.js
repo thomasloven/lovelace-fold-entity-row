@@ -23,7 +23,6 @@
           .hass=${this.hass}
           @click=${this.clickRow}
           class=${this.hasMoreInfo(t)?"state-card-dialog":""}
-          head
         ></entity-row-maker>
       `)}
     </div>
