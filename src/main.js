@@ -23,6 +23,10 @@ class FoldEntityRow extends LitElement {
     this._config = Object.assign({}, defaults, config);
     this.open = this.open || this._config.open;
 
+    this.head = this._config.head;
+    if (typeof this.head === "string")
+      this.head = {entity: this.head};
+
     // Items are taken from the first available of the following
     // - The group specified as head
     // - config entities: (this allows auto-population of the list)
@@ -30,8 +34,8 @@ class FoldEntityRow extends LitElement {
     this.items = this._config.items;
     if (this._config.entities)
       this.items = this._config.entities;
-    if (typeof this._config.head === "string" && this._config.head.startsWith("group."))
-      this.items = hass().states[this._config.head].attributes.entity_id;
+    if (this.head.entity && this.head.entity.startsWith("group.") && !this.items)
+      this.items = hass().states[this.head.entity].attributes.entity_id;
   }
 
   clickRow(ev) {
@@ -85,7 +89,7 @@ class FoldEntityRow extends LitElement {
     return html`
     <div id="head" ?open=${this.open}>
       <entity-row-maker
-        .config=${this._config.head}
+        .config=${this.head}
         .hass=${this.hass}
         @click=${this.clickRow}
         head
