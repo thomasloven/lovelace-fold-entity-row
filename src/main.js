@@ -125,15 +125,17 @@ class FoldEntityRow extends LitElement {
   static get styles() {
     return css`
       #head {
+        --toggle-icon-width: 40px;
         display: flex;
         cursor: pointer;
         align-items: center;
       }
       #head entity-row-maker {
         flex-grow: 1;
+        max-width: calc(100% - var(--toggle-icon-width));
       }
       #head ha-icon {
-        width: 40px;
+        width: var(--toggle-icon-width);
         cursor: pointer
       }
 
