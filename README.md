@@ -130,5 +130,22 @@ card:
 
 ![advanced](https://user-images.githubusercontent.com/1299821/59793890-ed65b380-92d7-11e9-9ed6-8dc1c15d749b.png)
 
+- If `entity` (not `entities`) is set and is a group, it will be expanded
+
+```yaml
+type: custom:auto-entities
+card:
+  type: entities
+  title: All groups
+filter:
+  include:
+    - domain: group
+      options:
+        type: custom:fold-entity-row
+```
+
+![image](https://user-images.githubusercontent.com/1299821/62471886-e4ed0d80-b79d-11e9-97b4-7edb721338cc.png)
+
+
 ---
 <a href="https://www.buymeacoffee.com/uqD6KHCdJ" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/white_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

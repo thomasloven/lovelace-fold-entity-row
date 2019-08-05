@@ -24,6 +24,8 @@ class FoldEntityRow extends LitElement {
     this.open = this.open || this._config.open;
 
     this.head = this._config.head;
+    if (this._config.entity)
+      this.head = this._config.entity;
     if (typeof this.head === "string")
       this.head = {entity: this.head};
 
