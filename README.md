@@ -1,11 +1,19 @@
 fold-entity-row
 ===============
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+
 Fold away and hide rows in lovelace [entities](https://www.home-assistant.io/lovelace/entities/) cards.
 
 For installation instructions [see this guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
 
 Install `fold-entity-row.js` as a `module`.
+
+```yaml
+resources:
+  url: /local/fold-entity-row.js
+  type: module
+```
 
 ## Usage
 Add this to an entities card:
