@@ -1,5 +1,4 @@
 import { LitElement, html, css } from "/card-tools/lit-element.js";
-import { moreInfo } from "/card-tools/more-info.js";
 import { hass } from "/card-tools/hass.js";
 import "/card-tools/card-maker.js";
 import { DOMAINS_HIDE_MORE_INFO } from "/card-tools/lovelace-element.js";
@@ -7,7 +6,7 @@ import { DOMAINS_HIDE_MORE_INFO } from "/card-tools/lovelace-element.js";
 class FoldEntityRow extends LitElement {
   static get properties() {
     return {
-      hass: {},
+      _hass: {},
       open: Boolean,
       items: {},
     };
@@ -41,13 +40,13 @@ class FoldEntityRow extends LitElement {
   }
 
   clickRow(ev) {
-    const config = ev.target.parentElement._config;
-    const entity = config.entity || (typeof config === "string" ? config : null);
-
     ev.stopPropagation();
-    if(this.hasMoreInfo(config))
-      moreInfo(entity)
-    else if(ev.target.parentElement.hasAttribute('head')) {
+
+    const config = ev.target.parentElement._config;
+
+    if(this.hasMoreInfo(config) || config.tap_action) {
+      customElements.get('hui-entities-card').prototype._handleClick.bind(this)(config);
+    } else if(ev.target.parentElement.hasAttribute('head')) {
       this.toggle(ev);
     }
   }
@@ -78,9 +77,13 @@ class FoldEntityRow extends LitElement {
     });
   }
 
+  set hass(hass) {
+    this._hass = hass;
+  }
+
   render() {
     if (this._entities)
-      this._entities.forEach((e) => e.hass = this.hass);
+      this._entities.forEach((e) => e.hass = this._hass);
 
     const fix_config = (config) => {
       if(typeof config === "string")
@@ -92,7 +95,7 @@ class FoldEntityRow extends LitElement {
     <div id="head" ?open=${this.open}>
       <entity-row-maker
         .config=${this.head}
-        .hass=${this.hass}
+        .hass=${this._hass}
         @click=${this.clickRow}
         head
       ></entity-row-maker>
@@ -113,7 +116,7 @@ class FoldEntityRow extends LitElement {
       ${this.items.map(i => html`
         <entity-row-maker
           .config=${fix_config(i)}
-          .hass=${this.hass}
+          .hass=${this._hass}
           @click=${this.clickRow}
           class=${this.hasMoreInfo(i) ? 'state-card-dialog' : ''}
         ></entity-row-maker>
