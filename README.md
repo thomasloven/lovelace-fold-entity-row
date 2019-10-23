@@ -11,8 +11,8 @@ Install `fold-entity-row.js` as a `module`.
 
 ```yaml
 resources:
-  url: /local/fold-entity-row.js
-  type: module
+  - url: /local/fold-entity-row.js
+    type: module
 ```
 
 ## Usage
