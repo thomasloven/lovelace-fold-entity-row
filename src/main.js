@@ -1,7 +1,7 @@
-import { LitElement, html, css } from "/card-tools/lit-element.js";
-import { hass } from "/card-tools/hass.js";
-import "/card-tools/card-maker.js";
-import { DOMAINS_HIDE_MORE_INFO } from "/card-tools/lovelace-element.js";
+import { LitElement, html, css } from "card-tools/src/lit-element.js";
+import { hass } from "card-tools/src/hass.js";
+import "card-tools/src/card-maker.js";
+import { DOMAINS_HIDE_MORE_INFO } from "card-tools/src/lovelace-element.js";
 
 class FoldEntityRow extends LitElement {
   static get properties() {
