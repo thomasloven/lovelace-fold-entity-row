@@ -1,12 +1,10 @@
 import { LitElement, html, css } from "card-tools/src/lit-element.js";
 import { hass } from "card-tools/src/hass.js";
-import "card-tools/src/card-maker.js";
-import { DOMAINS_HIDE_MORE_INFO } from "card-tools/src/lovelace-element.js";
+import { DOMAINS_HIDE_MORE_INFO, createEntityRow } from "card-tools/src/lovelace-element.js";
 
 class FoldEntityRow extends LitElement {
   static get properties() {
     return {
-      _hass: {},
       open: Boolean,
       items: {},
     };
@@ -22,33 +20,43 @@ class FoldEntityRow extends LitElement {
     this._config = Object.assign({}, defaults, config);
     this.open = this.open || this._config.open;
 
-    this.head = this._config.head;
+    let head = this._config.head;
     if (this._config.entity)
-      this.head = this._config.entity;
-    if (typeof this.head === "string")
-      this.head = {entity: this.head};
+      head = this._config.entity;
+    if (typeof head === "string")
+      head = {entity: head};
 
     // Items are taken from the first available of the following
     // - The group specified as head
     // - config entities: (this allows auto-population of the list)
     // - config items: (for backwards compatibility - not recommended)
-    this.items = this._config.items;
+    let items = this._config.items;
     if (this._config.entities)
-      this.items = this._config.entities;
-    if (this.head.entity && this.head.entity.startsWith("group.") && !this.items)
-      this.items = hass().states[this.head.entity].attributes.entity_id;
-  }
+      items = this._config.entities;
+    if (head.entity && head.entity.startsWith("group.") && !items)
+      items = hass().states[head.entity].attributes.entity_id;
 
-  clickRow(ev) {
-    ev.stopPropagation();
-
-    const config = ev.target.parentElement._config;
-
-    if(this.hasMoreInfo(config) || config.tap_action) {
-      customElements.get('hui-entities-card').prototype._handleClick.bind(this)(config);
-    } else if(ev.target.parentElement.hasAttribute('head')) {
-      this.toggle(ev);
+    const fix_config = (config) => {
+      if(typeof config === "string")
+        config = {entity: config};
+      return Object.assign({}, this._config.group_config, config);
     }
+
+    this.head = createEntityRow(head);
+    this.head.hass = hass();
+    this.head.addEventListener("click", (ev) => {
+      if(!this.hasMoreInfo(head) && !head.tap_action)
+      this.toggle(ev);
+    });
+    this.head.setAttribute('head', 'head');
+
+    this.rows = items.map((i) => {
+      const row = createEntityRow(fix_config(i));
+      row.hass = hass();
+      if(this.hasMoreInfo(i))
+        row.classList.add("state-card-dialog");
+      return row;
+    });
   }
 
   toggle(ev) {
@@ -66,7 +74,7 @@ class FoldEntityRow extends LitElement {
 
   firstUpdated() {
     // If the header is a section-row, adjust the divider line a bit to look better
-    const headRow = this.shadowRoot.querySelector("#head > entity-row-maker");
+    const headRow = this.head;
     headRow.updateComplete.then(() => {
      const element = headRow.querySelector("hui-section-row");
       if(element) {
@@ -78,27 +86,14 @@ class FoldEntityRow extends LitElement {
   }
 
   set hass(hass) {
-    this._hass = hass;
+    this.rows.forEach((e) => e.hass = hass);
+    this.head.hass = hass;
   }
 
   render() {
-    if (this._entities)
-      this._entities.forEach((e) => e.hass = this._hass);
-
-    const fix_config = (config) => {
-      if(typeof config === "string")
-        config = {entity: config};
-      return Object.assign({}, this._config.group_config, config);
-    }
-
     return html`
     <div id="head" ?open=${this.open}>
-      <entity-row-maker
-        .config=${this.head}
-        .hass=${this._hass}
-        @click=${this.clickRow}
-        head
-      ></entity-row-maker>
+      ${this.head}
       <ha-icon
         @click=${this.toggle}
         icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
@@ -113,14 +108,7 @@ class FoldEntityRow extends LitElement {
           : ''
         }
     >
-      ${this.items.map(i => html`
-        <entity-row-maker
-          .config=${fix_config(i)}
-          .hass=${this._hass}
-          @click=${this.clickRow}
-          class=${this.hasMoreInfo(i) ? 'state-card-dialog' : ''}
-        ></entity-row-maker>
-      `)}
+      ${this.rows}
     </div>
     `;
   }
@@ -133,7 +121,7 @@ class FoldEntityRow extends LitElement {
         cursor: pointer;
         align-items: center;
       }
-      #head entity-row-maker {
+      #head :not(ha-icon) {
         flex-grow: 1;
         max-width: calc(100% - var(--toggle-icon-width));
       }
