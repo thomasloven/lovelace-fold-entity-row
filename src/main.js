@@ -49,14 +49,32 @@ class FoldEntityRow extends LitElement {
       this.toggle(ev);
     });
     this.head.setAttribute('head', 'head');
+    this.applyStyle(this.head, head);
 
     this.rows = items.map((i) => {
       const row = createEntityRow(fix_config(i));
       row.hass = hass();
       if(this.hasMoreInfo(i))
         row.classList.add("state-card-dialog");
+      this.applyStyle(row, fix_config(i));
       return row;
     });
+  }
+
+  async applyStyle(root, config) {
+    if(!config.style) return;
+
+    await customElements.whenDefined("card-mod");
+    if(root.updateComplete)
+      await root.updateComplete;
+
+    const cm = document.createElement("card-mod");
+    cm.template = {
+      template: config.style,
+      variables: {config},
+      entity_ids: config.entity_ids,
+    };
+    root.shadowRoot.appendChild(cm);
   }
 
   toggle(ev) {
