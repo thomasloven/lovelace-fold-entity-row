@@ -94,10 +94,9 @@ class FoldEntityRow extends LitElement {
     // If the header is a section-row, adjust the divider line a bit to look better
     const headRow = this.head;
     headRow.updateComplete.then(() => {
-     const element = headRow.querySelector("hui-section-row");
-      if(element) {
-        element.updateComplete.then(() => {
-          element.shadowRoot.querySelector(".divider").style.marginRight = "-56px";
+      if(headRow.tagName === "HUI-SECTION-ROW") {
+        headRow.updateComplete.then(() => {
+          headRow.shadowRoot.querySelector(".divider").style.marginRight = "-56px";
         });
       }
     });
