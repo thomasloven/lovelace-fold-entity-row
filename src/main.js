@@ -6,7 +6,7 @@ class FoldEntityRow extends LitElement {
   static get properties() {
     return {
       open: Boolean,
-      items: {},
+      rows: {},
     };
   }
 
