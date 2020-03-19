@@ -64,7 +64,7 @@ class FoldEntityRow extends LitElement {
   async applyStyle(root, config) {
     if(!config.style) return;
 
-    await customElements.whenDefined("card-mod");
+    //await customElements.whenDefined("card-mod");
     if(root.updateComplete)
       await root.updateComplete;
 
@@ -165,4 +165,11 @@ class FoldEntityRow extends LitElement {
 
 }
 
-customElements.define('fold-entity-row', FoldEntityRow);
+
+if(!customElements.get("fold-entity-row")) {
+  customElements.define('fold-entity-row', FoldEntityRow);
+  const pjson = require('../package.json');
+  console.info(`%cFOLD-ENTITY-ROW ${pjson.version} IS INSTALLED`,
+  "color: green; font-weight: bold",
+  "");
+}
