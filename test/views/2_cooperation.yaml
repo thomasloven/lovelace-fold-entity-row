@@ -1,0 +1,168 @@
+x-anchors:
+  default: &default
+    type: custom:fold-entity-row
+    head:
+      entity: light.bed_light
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
+  desc: &desc
+    type: markdown
+    style: |
+      code {
+        font-size: 8pt;
+        line-height: normal;
+        white-space: pre-wrap;
+        }
+
+title: Cooperation
+cards:
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 1: Nested folds
+          Fold inside fold
+
+          ```
+          type: custom:fold-entity-row
+          head: {entity: light.bed_light}
+          open: true
+          entities:
+            - <<: *default
+              open: true
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head: {entity: light.bed_light}
+            open: true
+            entities:
+              - <<: *default
+                open: true
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 2: Auto populated list
+          Elements are lights that are turned on
+          Updates dynamically
+
+          **Note**: No border or background expected
+
+          ```
+          type: entity-filter
+          entities:
+            - light.bed_light
+            - light.ceiling_lights
+            - light.kitchen_lights
+          state_filter:
+            - "on"
+          card:
+            type: custom:fold-entity-row
+            head: {entity: light.bed_light}
+            open: true
+          ```
+      - type: entity-filter
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
+        state_filter:
+          - "on"
+        card:
+          type: custom:fold-entity-row
+          head: {entity: light.bed_light}
+          open: true
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 3: card-mod
+          Head: Red text
+          First item: blue text
+
+          ```
+          type: custom:fold-entity-row
+          head:
+            entity: light.bed_light
+            open: true
+            style: |
+              :host {
+                color: red;
+              }
+          entities:
+            - entity: light.bed_light
+              style: |
+                :host {
+                  color: blue;
+                }
+            - light.ceiling_lights
+            - light.kitchen_lights
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            open: true
+            head:
+              entity: light.bed_light
+              style: |
+                :host {
+                  color: red;
+                }
+            entities:
+              - entity: light.bed_light
+                style: |
+                  :host {
+                    color: blue;
+                  }
+              - light.ceiling_lights
+              - light.kitchen_lights
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 4: card-mod group_config
+          All items: blue text when on
+
+          {%raw%}
+          ```
+          type: custom:fold-entity-row
+          open: true
+          head:
+            entity: light.bed_light
+          entities:
+            - entity: light.bed_light
+            - light.ceiling_lights
+            - light.kitchen_lights
+          group_config:
+              style: |
+                :host {
+                  {% if is_state(config.entity, 'on') %}
+                  color: blue;
+                  {% endif %}
+                }
+          ```
+          {%endraw%}
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            open: true
+            head:
+              entity: light.bed_light
+            entities:
+              - entity: light.bed_light
+              - light.ceiling_lights
+              - light.kitchen_lights
+            group_config:
+                style: |
+                  :host {
+                    {% if is_state(config.entity, 'on') %}
+                    color: blue;
+                    {% endif %}
+                  }

@@ -1,0 +1,132 @@
+x-anchors:
+  default: &default
+    type: custom:fold-entity-row
+    head:
+      entity: light.bed_light
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
+  desc: &desc
+    type: markdown
+    style: |
+      code {
+        font-size: 8pt;
+        line-height: normal;
+        white-space: pre-wrap;
+        }
+
+title: Standard
+cards:
+  - <<: *desc
+    content: |
+      ## 0: Common configuration
+      ```
+      default: &default
+        type: custom:fold-entity-row
+        head:
+          entity: light.bed_light
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
+      ```
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 1: Default configuration
+          Head and three entities
+
+          ```
+          type: entities
+          entities:
+            - light.bed_light
+            - <<: *default
+          ```
+      - type: entities
+        entities:
+          - light.bed_light
+          - <<: *default
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 2: Head, entity and group options
+          Head name: Head
+          First entity name: First
+
+          ```
+          type: custom:fold-entity-row
+          head:
+            entity: light.bed_light
+            name: Head
+          entities:
+            - entity: light.bed_light
+              name: First
+            - light.ceiling_lights
+            - light.kitchen_lights
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+              name: Head
+            entities:
+              - entity: light.bed_light
+                name: First
+              - light.ceiling_lights
+              - light.kitchen_lights
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 3: Group config
+          All entities have gear icon
+
+          ```
+          <<: *default
+          group_config:
+            icon: mdi:settings
+          ```
+      - type: entities
+        entities:
+          - <<: *default
+            group_config:
+              icon: mdi:settings
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 4: Open
+          Open by default
+
+          ```
+          <<: *default
+          open: true
+          ```
+      - type: entities
+        entities:
+          - <<: *default
+            open: true
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 5: Padding
+          No padding of items
+
+          ```
+          <<: *default
+          padding: 0
+          ```
+      - type: entities
+        entities:
+          - <<: *default
+            padding: 0

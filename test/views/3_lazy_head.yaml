@@ -1,0 +1,38 @@
+x-anchors:
+  desc: &desc
+    type: markdown
+    style: |
+      code {
+        font-size: 8pt;
+        line-height: normal;
+        white-space: pre-wrap;
+        }
+
+title: Lazy loaded head
+cards:
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 1: Using lazy loaded head element
+
+          ```
+          type: custom:fold-entity-row
+          open: true
+          head:
+            type: section
+          entities:
+            - light.bed_light
+            - light.ceiling_lights
+            - light.kitchen_lights
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            open: true
+            head:
+              type: section
+            entities:
+              - light.bed_light
+              - light.ceiling_lights
+              - light.kitchen_lights
