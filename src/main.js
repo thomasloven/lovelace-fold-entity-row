@@ -50,6 +50,13 @@ class FoldEntityRow extends LitElement {
     });
     this.head.setAttribute('head', 'head');
     this.applyStyle(this.head, head);
+    if(this.head.tagName === "HUI-SECTION-ROW") {
+      customElements.whenDefined(this.head.localName).then(async () => {
+        await this.updateComplete;
+        await this.head.updateComplete;
+          this.head.shadowRoot.querySelector(".divider").style.marginRight = "-56px";
+      });
+    }
 
     this.rows = items.map((i) => {
       const row = createEntityRow(fix_config(i));
@@ -88,18 +95,6 @@ class FoldEntityRow extends LitElement {
     if(entity && !DOMAINS_HIDE_MORE_INFO.includes(entity.split(".",1)[0]))
       return true;
     return false;
-  }
-
-  firstUpdated() {
-    // If the header is a section-row, adjust the divider line a bit to look better
-    const headRow = this.head;
-    headRow.updateComplete.then(() => {
-      if(headRow.tagName === "HUI-SECTION-ROW") {
-        headRow.updateComplete.then(() => {
-          headRow.shadowRoot.querySelector(".divider").style.marginRight = "-56px";
-        });
-      }
-    });
   }
 
   set hass(hass) {
