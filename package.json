@@ -1,7 +1,7 @@
 {
   "name": "fold-entity-row",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "scripts": {
     "build": "webpack",
