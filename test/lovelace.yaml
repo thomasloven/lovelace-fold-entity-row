@@ -1,7 +1,8 @@
-title: card-mod
+title: fold-entity-row
 views:
 
   - !include views/1_standard.yaml
   - !include views/2_cooperation.yaml
   - !include views/3_lazy_head.yaml
   - !include views/4_lazy_element.yaml
+  - !include views/5_errors.yaml

@@ -54,7 +54,7 @@ cards:
     cards:
       - <<: *desc
         content: |
-          ## 2: Head, entity and group options
+          ## 2: Head and entity config
           Head name: Head
           First entity name: First
 

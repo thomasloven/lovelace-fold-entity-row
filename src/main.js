@@ -23,6 +23,9 @@ class FoldEntityRow extends LitElement {
     let head = this._config.head;
     if (this._config.entity)
       head = this._config.entity;
+    if(!head) {
+      throw new Error("No fold head specified");
+    }
     if (typeof head === "string")
       head = {entity: head};
 
@@ -31,10 +34,15 @@ class FoldEntityRow extends LitElement {
     // - config entities: (this allows auto-population of the list)
     // - config items: (for backwards compatibility - not recommended)
     let items = this._config.items;
-    if (this._config.entities)
+    if (this._config.entities !== undefined)
       items = this._config.entities;
-    if (head.entity && head.entity.startsWith("group.") && !items)
+    if (head.entity && head.entity.startsWith("group.") && items === undefined)
       items = hass().states[head.entity].attributes.entity_id;
+    else
+      if(items === undefined)
+        throw new Error("No entities specified.");
+      else if(!items || items.length === undefined)
+        throw new Error("Entities must be a list.");
 
     const fix_config = (config) => {
       if(typeof config === "string")
