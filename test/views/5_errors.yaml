@@ -8,7 +8,7 @@ x-anchors:
         white-space: pre-wrap;
         }
 
-title: Lazy loaded entity
+title: Errors
 cards:
   - type: entities
     entities:
@@ -27,6 +27,7 @@ cards:
   - type: entities
     entities:
       - type: custom:fold-entity-row
+        open: true
         head:
           entity: light.no_light
         entities:

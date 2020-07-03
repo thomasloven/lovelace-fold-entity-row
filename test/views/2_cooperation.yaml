@@ -166,3 +166,41 @@ cards:
                     color: blue;
                     {% endif %}
                   }
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 5: Card mod lazy loaded row
+
+          ```
+          - type: custom:fold-entity-row
+            open: true
+            head:
+              entity: group.light_group
+              style: |
+                :host {
+                  color: blue
+                }
+            group_config:
+              style: |
+                :host {
+                  color: green;
+                }
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            open: true
+            head:
+              entity: group.light_group
+              style: |
+                :host {
+                  color: blue;
+                }
+            group_config:
+              style: |
+                :host {
+                  color: green;
+                }
+

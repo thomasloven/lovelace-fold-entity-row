@@ -3,14 +3,17 @@ default_config:
 demo:
 
 lovelace:
-  mode: yaml
-  resources:
-    - url: /local/fold-entity-row.js
-      type: module
-    - url: /local/card-mod.js
-      type: module
+  mode: storage
   dashboards:
     lovelace-yaml:
       mode: yaml
       title: yaml
       filename: lovelace.yaml
+
+group:
+  light_group:
+    name: Light group
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights

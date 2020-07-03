@@ -130,3 +130,18 @@ cards:
         entities:
           - <<: *default
             padding: 0
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 6: Group entity
+
+          ```
+          - type: custom:fold-entity-row
+            head: group.light_group
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head: group.light_group

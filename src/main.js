@@ -89,7 +89,9 @@ class FoldEntityRow extends LitElement {
       variables: {config},
       entity_ids: config.entity_ids,
     };
+    customElements.whenDefined(root.localName).then(() => {
     root.shadowRoot.appendChild(cm);
+    });
   }
 
   toggle(ev) {
