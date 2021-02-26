@@ -8,12 +8,22 @@ lovelace:
     lovelace-yaml:
       mode: yaml
       title: yaml
-      filename: lovelace.yaml
+      filename: test/lovelace.yaml
 
 group:
   light_group:
-    name: Light group
+    name: Lights group
     entities:
       - light.bed_light
       - light.ceiling_lights
       - light.kitchen_lights
+  switch_group:
+    name: Switches group
+    entities:
+      - switch.ac
+      - switch.decorative_lights
+  group_group:
+    name: Groups grop
+    entities:
+      - group.light_group
+      - group.switch_group
