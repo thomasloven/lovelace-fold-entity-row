@@ -1,22 +1,230 @@
-const e=customElements.get("home-assistant-main")?Object.getPrototypeOf(customElements.get("home-assistant-main")):Object.getPrototypeOf(customElements.get("hui-view")),t=e.prototype.html,o=e.prototype.css;function n(){return document.querySelector("hc-main")?document.querySelector("hc-main").hass:document.querySelector("home-assistant")?document.querySelector("home-assistant").hass:void 0}function i(e,t,o=null){if((e=new Event(e,{bubbles:!0,cancelable:!1,composed:!0})).detail=t||{},o)o.dispatchEvent(e);else{var n=function(){var e=document.querySelector("hc-main");return e?(e=(e=(e=e&&e.shadowRoot)&&e.querySelector("hc-lovelace"))&&e.shadowRoot)&&e.querySelector("hui-view")||e.querySelector("hui-panel-view"):(e=(e=(e=(e=(e=(e=(e=(e=(e=(e=(e=(e=document.querySelector("home-assistant"))&&e.shadowRoot)&&e.querySelector("home-assistant-main"))&&e.shadowRoot)&&e.querySelector("app-drawer-layout partial-panel-resolver"))&&e.shadowRoot||e)&&e.querySelector("ha-panel-lovelace"))&&e.shadowRoot)&&e.querySelector("hui-root"))&&e.shadowRoot)&&e.querySelector("ha-app-layout"))&&e.querySelector("#view"))&&e.firstElementChild}();n&&n.dispatchEvent(e)}}const s=["input_number","input_select","input_text","scene","weblink"];let r=window.cardHelpers;const a=new Promise((async(e,t)=>{r&&e();const o=async()=>{r=await window.loadCardHelpers(),window.cardHelpers=r,e()};window.loadCardHelpers?o():window.addEventListener("load",(async()=>{!async function(){if(customElements.get("hui-view"))return!0;await customElements.whenDefined("partial-panel-resolver");const e=document.createElement("partial-panel-resolver");if(e.hass={panels:[{url_path:"tmp",component_name:"lovelace"}]},e._updateRoutes(),await e.routerOptions.routes.tmp.load(),!customElements.get("ha-panel-lovelace"))return!1;const t=document.createElement("ha-panel-lovelace");t.hass=n(),void 0===t.hass&&(await new Promise((e=>{window.addEventListener("connection-status",(t=>{console.log(t),e()}),{once:!0})})),t.hass=n()),t.panel={config:{mode:null}},t._fetchConfig()}(),window.loadCardHelpers&&o()}))}));function l(e,t){const o={type:"error",error:e,origConfig:t},n=document.createElement("hui-error-card");return customElements.whenDefined("hui-error-card").then((()=>{const e=document.createElement("hui-error-card");e.setConfig(o),n.parentElement&&n.parentElement.replaceChild(e,n)})),a.then((()=>{i("ll-rebuild",{},n)})),n}function c(e,t){if(!t||"object"!=typeof t||!t.type)return l(`No ${e} type configured`,t);let o=t.type;if(o=o.startsWith("custom:")?o.substr("custom:".length):`hui-${o}-${e}`,customElements.get(o))return function(e,t){let o=document.createElement(e);try{o.setConfig(JSON.parse(JSON.stringify(t)))}catch(e){o=l(e,t)}return a.then((()=>{i("ll-rebuild",{},o)})),o}(o,t);const n=l(`Custom element doesn't exist: ${o}.`,t);n.style.display="None";const s=setTimeout((()=>{n.style.display=""}),2e3);return customElements.whenDefined(o).then((()=>{clearTimeout(s),i("ll-rebuild",{},n)})),n}function d(e){if(r)return r.createRowElement(e);const t=new Set(["call-service","cast","conditional","divider","section","select","weblink"]),o={alert:"toggle",automation:"toggle",climate:"climate",cover:"cover",fan:"toggle",group:"group",input_boolean:"toggle",input_number:"input-number",input_select:"input-select",input_text:"input-text",light:"toggle",lock:"lock",media_player:"media-player",remote:"toggle",scene:"scene",script:"script",sensor:"sensor",timer:"timer",switch:"toggle",vacuum:"toggle",water_heater:"climate",input_datetime:"input-datetime",none:void 0};if(!e)return l("Invalid configuration given.",e);if("string"==typeof e&&(e={entity:e}),"object"!=typeof e||!e.entity&&!e.type)return l("Invalid configuration given.",e);const n=e.type||"default";if(t.has(n)||n.startsWith("custom:"))return c("row",e);return c("entity-row",{type:o[e.entity?e.entity.split(".",1)[0]:"none"]||"text",...e})}var h="20.0.0b0";class u extends e{static get properties(){return{open:Boolean,rows:{}}}setConfig(e){this._config=Object.assign({},{open:!1,padding:20,group_config:{}},e),this.open=this.open||this._config.open;let t=this._config.head;if(this._config.entity&&(t=this._config.entity),!t)throw new Error("No fold head specified");"string"==typeof t&&(t={entity:t});let o=this._config.items;if(void 0!==this._config.entities&&(o=this._config.entities),t.entity&&t.entity.startsWith("group.")&&void 0===o)o=n().states[t.entity].attributes.entity_id;else{if(void 0===o)throw new Error("No entities specified.");if(!o||void 0===o.length)throw new Error("Entities must be a list.")}const i=e=>("string"==typeof e&&(e={entity:e}),Object.assign({},this._config.group_config,e));this.head=d(t),this.head.hass=n(),this.head.addEventListener("click",(e=>{this.hasMoreInfo(t)||t.tap_action||this.toggle(e)})),this.head.setAttribute("head","head"),this.applyStyle(this.head,t),"HUI-SECTION-ROW"===this.head.tagName&&customElements.whenDefined(this.head.localName).then((async()=>{await this.updateComplete,await this.head.updateComplete,this.head.shadowRoot.querySelector(".divider").style.marginRight="-56px"})),this.rows=o.map((e=>{const t=d(i(e));return t.hass=n(),this.hasMoreInfo(e)&&t.classList.add("state-card-dialog"),this.applyStyle(t,i(e)),t}))}async applyStyle(e,t){await customElements.whenDefined("card-mod"),customElements.get("card-mod").applyToElement(e,"row",t.card_mod?t.card_mod.style:t.style,{config:t})}toggle(e){e&&e.stopPropagation(),this.open=!this.open}hasMoreInfo(e){const t=e.entity||("string"==typeof e?e:null);return!(!t||s.includes(t.split(".",1)[0]))}set hass(e){this.rows.forEach((t=>t.hass=e)),this.head.hass=e}render(){return t`
+const LitElement = customElements.get('home-assistant-main')
+  ? Object.getPrototypeOf(customElements.get('home-assistant-main'))
+  : Object.getPrototypeOf(customElements.get('hui-view'));
+
+const html = LitElement.prototype.html;
+
+const css = LitElement.prototype.css;
+
+function hass() {
+  if(document.querySelector('hc-main'))
+    return document.querySelector('hc-main').hass;
+
+  if(document.querySelector('home-assistant'))
+    return document.querySelector('home-assistant').hass;
+
+  return undefined;
+}
+async function load_lovelace() {
+  if(customElements.get("hui-view")) return true;
+
+  await customElements.whenDefined("partial-panel-resolver");
+  const ppr = document.createElement("partial-panel-resolver");
+  ppr.hass = {panels: [{
+    url_path: "tmp",
+    "component_name": "lovelace",
+  }]};
+  ppr._updateRoutes();
+  await ppr.routerOptions.routes.tmp.load();
+  if(!customElements.get("ha-panel-lovelace")) return false;
+  const p = document.createElement("ha-panel-lovelace");
+  p.hass = hass();
+  if(p.hass === undefined) {
+    await new Promise(resolve => {
+      window.addEventListener('connection-status', (ev) => {
+        console.log(ev);
+        resolve();
+      }, {once: true});
+    });
+    p.hass = hass();
+  }
+  p.panel = {config: {mode: null}};
+  p._fetchConfig();
+  return true;
+}
+
+const DOMAINS_HIDE_MORE_INFO = [
+  "input_number",
+  "input_select",
+  "input_text",
+  "scene",
+  "weblink",
+];
+
+let helpers = window.cardHelpers;
+new Promise(async (resolve, reject) => {
+  if(helpers) resolve();
+
+  const updateHelpers = async () => {
+    helpers = await window.loadCardHelpers();
+    window.cardHelpers = helpers;
+    resolve();
+  };
+
+  if(window.loadCardHelpers) {
+    updateHelpers();
+  } else {
+    // If loadCardHelpers didn't exist, force load lovelace and try once more.
+    window.addEventListener("load", async () => {
+      load_lovelace();
+      if(window.loadCardHelpers) {
+        updateHelpers();
+      }
+    });
+  }
+});
+
+var name = "fold-entity-row";
+var version = "20.0.0b0";
+var description = "";
+var scripts = {
+	build: "rollup -c",
+	watch: "rollup -c --watch",
+	"update-card-tools": "npm uninstall card-tools && npm install thomasloven/lovelace-card-tools"
+};
+var keywords = [
+];
+var author = "Thomas Lovén";
+var license = "MIT";
+var devDependencies = {
+	"@babel/core": "^7.13.1",
+	"@rollup/plugin-babel": "^5.3.0",
+	"@rollup/plugin-json": "^4.1.0",
+	"@rollup/plugin-node-resolve": "^11.2.0",
+	rollup: "^2.39.0",
+	"rollup-plugin-terser": "^7.0.2",
+	"rollup-plugin-typescript2": "^0.30.0",
+	typescript: "^4.1.5"
+};
+var dependencies = {
+	"card-tools": "github:thomasloven/lovelace-card-tools",
+	"lit-element": "^2.4.0"
+};
+var pjson = {
+	name: name,
+	"private": true,
+	version: version,
+	description: description,
+	scripts: scripts,
+	keywords: keywords,
+	author: author,
+	license: license,
+	devDependencies: devDependencies,
+	dependencies: dependencies
+};
+
+class FoldEntityRow extends LitElement {
+  static get properties() {
+    return {
+      open: Boolean,
+      rows: {},
+      head: {}
+    };
+  }
+
+  setConfig(config) {
+    const defaults = {
+      open: false,
+      padding: 24,
+      group_config: {}
+    };
+    this._config = Object.assign({}, defaults, config);
+    this.open = this.open || this._config.open;
+    let head = this._config.head;
+    if (this._config.entity) head = this._config.entity;
+
+    if (!head) {
+      throw new Error("No fold head specified");
+    }
+
+    if (typeof head === "string") head = {
+      entity: head
+    }; // Items are taken from the first available of the following
+    // - The group specified as head
+    // - config entities: (this allows auto-population of the list)
+    // - config items: (for backwards compatibility - not recommended)
+
+    let items = this._config.items;
+    if (this._config.entities !== undefined) items = this._config.entities;
+    if (head.entity && head.entity.startsWith("group.") && items === undefined) items = hass().states[head.entity].attributes.entity_id;else if (items === undefined) throw new Error("No entities specified.");else if (!items || items.length === undefined) throw new Error("Entities must be a list.");
+
+    this._setupHead(head);
+
+    this.rows = [];
+
+    this._setupItems(items);
+  }
+
+  async _setupHead(config) {
+    this.head = await this._createRow(config, true);
+  }
+
+  async _setupItems(items) {
+    this.rows = await Promise.all(items.map(async i => {
+      console.log(i);
+      if (typeof i === "string") i = {
+        entity: i
+      };
+      return this._createRow(i);
+    }));
+  }
+
+  async _createRow(config, head = false) {
+    const helpers = await window.loadCardHelpers();
+    if (!head) config = Object.assign({}, this._config.group_config, config);
+    const el = helpers.createRowElement(config);
+    this.applyStyle(el, config);
+    if (this._hass) el.hass = this._hass;
+    return el;
+  }
+
+  async applyStyle(root, config) {
+    await customElements.whenDefined("card-mod");
+    customElements.get("card-mod").applyToElement(root, "row", config.card_mod ? config.card_mod.style : config.style, {
+      config
+    });
+  }
+
+  toggle(ev) {
+    if (ev) ev.stopPropagation();
+    this.open = !this.open;
+  }
+
+  hasMoreInfo(config) {
+    const entity = config.entity || (typeof config === "string" ? config : null);
+    if (entity && !DOMAINS_HIDE_MORE_INFO.includes(entity.split(".", 1)[0])) return true;
+    return false;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this.rows.forEach(e => e.hass = hass);
+    if (this.head) this.head.hass = hass;
+  }
+
+  render() {
+    return html`
       <div id="head" ?open=${this.open}>
         ${this.head}
         <ha-icon
           @click=${this.toggle}
-          icon=${this.open?"mdi:chevron-up":"mdi:chevron-down"}
+          icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
         ></ha-icon>
       </div>
 
       <div
         id="items"
         ?open=${this.open}
-        style=${this._config.padding?`padding-left: ${this._config.padding}px;`:""}
+        style=${this._config.padding ? `padding-left: ${this._config.padding}px;` : ""}
       >
         ${this.rows}
       </div>
-    `}static get styles(){return o`
+    `;
+  }
+
+  static get styles() {
+    return css`
       #head {
-        --toggle-icon-width: 40px;
         display: flex;
         cursor: pointer;
         align-items: center;
@@ -43,4 +251,12 @@ const e=customElements.get("home-assistant-main")?Object.getPrototypeOf(customEl
       .state-card-dialog {
         cursor: pointer;
       }
-    `}}customElements.get("fold-entity-row")||(customElements.define("fold-entity-row",u),console.info(`%cFOLD-ENTITY-ROW ${h} IS INSTALLED`,"color: green; font-weight: bold",""));
+    `;
+  }
+
+}
+
+if (!customElements.get("fold-entity-row")) {
+  customElements.define("fold-entity-row", FoldEntityRow);
+  console.info(`%cFOLD-ENTITY-ROW ${pjson.version} IS INSTALLED`, "color: green; font-weight: bold", "");
+}

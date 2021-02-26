@@ -11,13 +11,14 @@ class FoldEntityRow extends LitElement {
     return {
       open: Boolean,
       rows: {},
+      head: {},
     };
   }
 
   setConfig(config) {
     const defaults = {
       open: false,
-      padding: 20,
+      padding: 24,
       group_config: {},
     };
 
@@ -43,34 +44,33 @@ class FoldEntityRow extends LitElement {
     else if (!items || items.length === undefined)
       throw new Error("Entities must be a list.");
 
-    const fix_config = (config) => {
-      if (typeof config === "string") config = { entity: config };
-      return Object.assign({}, this._config.group_config, config);
-    };
+    this._setupHead(head);
+    this.rows = [];
+    this._setupItems(items);
+  }
 
-    this.head = createEntityRow(head);
-    this.head.hass = hass();
-    this.head.addEventListener("click", (ev) => {
-      if (!this.hasMoreInfo(head) && !head.tap_action) this.toggle(ev);
-    });
-    this.head.setAttribute("head", "head");
-    this.applyStyle(this.head, head);
-    if (this.head.tagName === "HUI-SECTION-ROW") {
-      customElements.whenDefined(this.head.localName).then(async () => {
-        await this.updateComplete;
-        await this.head.updateComplete;
-        this.head.shadowRoot.querySelector(".divider").style.marginRight =
-          "-56px";
-      });
-    }
+  async _setupHead(config) {
+    this.head = await this._createRow(config, true);
+  }
 
-    this.rows = items.map((i) => {
-      const row = createEntityRow(fix_config(i));
-      row.hass = hass();
-      if (this.hasMoreInfo(i)) row.classList.add("state-card-dialog");
-      this.applyStyle(row, fix_config(i));
-      return row;
-    });
+  async _setupItems(items) {
+    this.rows = await Promise.all(
+      items.map(async (i) => {
+        console.log(i);
+        if (typeof i === "string") i = { entity: i };
+
+        return this._createRow(i);
+      })
+    );
+  }
+
+  async _createRow(config, head = false) {
+    const helpers = await window.loadCardHelpers();
+    if (!head) config = Object.assign({}, this._config.group_config, config);
+    const el = helpers.createRowElement(config);
+    this.applyStyle(el, config);
+    if (this._hass) el.hass = this._hass;
+    return el;
   }
 
   async applyStyle(root, config) {
@@ -101,8 +101,9 @@ class FoldEntityRow extends LitElement {
   }
 
   set hass(hass) {
+    this._hass = hass;
     this.rows.forEach((e) => (e.hass = hass));
-    this.head.hass = hass;
+    if (this.head) this.head.hass = hass;
   }
 
   render() {
@@ -130,7 +131,6 @@ class FoldEntityRow extends LitElement {
   static get styles() {
     return css`
       #head {
-        --toggle-icon-width: 40px;
         display: flex;
         cursor: pointer;
         align-items: center;
