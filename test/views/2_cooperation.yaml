@@ -18,7 +18,6 @@ x-anchors:
 
 title: Cooperation
 cards:
-
   - type: vertical-stack
     cards:
       - <<: *desc
@@ -37,7 +36,7 @@ cards:
       - type: entities
         entities:
           - type: custom:fold-entity-row
-            head: {entity: light.bed_light}
+            head: { entity: light.bed_light }
             open: true
             entities:
               - <<: *default
@@ -75,7 +74,7 @@ cards:
           - "on"
         card:
           type: custom:fold-entity-row
-          head: {entity: light.bed_light}
+          head: { entity: light.bed_light }
           open: true
 
   - type: vertical-stack
@@ -91,18 +90,24 @@ cards:
           head:
             entity: light.bed_light
             open: true
-            style: |
-              :host {
-                color: red;
-              }
-          entities:
-            - entity: light.bed_light
+            card_mod:
               style: |
                 :host {
-                  color: blue;
+                  color: red;
                 }
+          entities:
+            - entity: light.bed_light
+              card_mod:
+                style: |
+                  :host {
+                    color: blue;
+                  }
             - light.ceiling_lights
-            - light.kitchen_lights
+            - entity: light.kitchen_lights
+              style: |
+                :host {
+                  color: green;
+                }
           ```
       - type: entities
         entities:
@@ -110,18 +115,24 @@ cards:
             open: true
             head:
               entity: light.bed_light
-              style: |
-                :host {
-                  color: red;
-                }
-            entities:
-              - entity: light.bed_light
+              card_mod:
                 style: |
                   :host {
-                    color: blue;
+                    color: red;
                   }
+            entities:
+              - entity: light.bed_light
+                card_mod:
+                  style: |
+                    :host {
+                      color: blue;
+                    }
               - light.ceiling_lights
-              - light.kitchen_lights
+              - entity: light.kitchen_lights
+                style: |
+                  :host {
+                    color: green;
+                  }
 
   - type: vertical-stack
     cards:
@@ -141,6 +152,7 @@ cards:
             - light.ceiling_lights
             - light.kitchen_lights
           group_config:
+            card_mod:
               style: |
                 :host {
                   {% if is_state(config.entity, 'on') %}
@@ -160,6 +172,7 @@ cards:
               - light.ceiling_lights
               - light.kitchen_lights
             group_config:
+              card_mod:
                 style: |
                   :host {
                     {% if is_state(config.entity, 'on') %}
@@ -178,15 +191,17 @@ cards:
             open: true
             head:
               entity: group.light_group
-              style: |
-                :host {
-                  color: blue
-                }
+              card_mod:
+                style: |
+                  :host {
+                    color: blue
+                  }
             group_config:
-              style: |
-                :host {
-                  color: green;
-                }
+              card_mod:
+                style: |
+                  :host {
+                    color: green;
+                  }
           ```
       - type: entities
         entities:
@@ -194,13 +209,14 @@ cards:
             open: true
             head:
               entity: group.light_group
-              style: |
-                :host {
-                  color: blue;
-                }
+              card_mod:
+                style: |
+                  :host {
+                    color: blue;
+                  }
             group_config:
-              style: |
-                :host {
-                  color: green;
-                }
-
+              card_mod:
+                style: |
+                  :host {
+                    color: green;
+                  }
