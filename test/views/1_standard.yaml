@@ -9,12 +9,14 @@ x-anchors:
       - light.kitchen_lights
   desc: &desc
     type: markdown
-    style: |
-      code {
-        font-size: 8pt;
-        line-height: normal;
-        white-space: pre-wrap;
-        }
+    card_mod:
+      style:
+        ha-markdown$: |
+          code {
+            font-size: 8pt !important;
+            line-height: normal;
+            white-space: pre-wrap;
+          }
 
 title: Standard
 cards:
@@ -91,13 +93,13 @@ cards:
           ```
           <<: *default
           group_config:
-            icon: mdi:settings
+            icon: mdi:cog
           ```
       - type: entities
         entities:
           - <<: *default
             group_config:
-              icon: mdi:settings
+              icon: mdi:cog
 
   - type: vertical-stack
     cards:
@@ -140,8 +142,42 @@ cards:
           ```
           - type: custom:fold-entity-row
             head: group.light_group
+          - type: custom:fold-entity-row
+            head: light.group
           ```
       - type: entities
         entities:
           - type: custom:fold-entity-row
             head: group.light_group
+          - type: custom:fold-entity-row
+            head: light.group
+          - type: custom:fold-entity-row
+            head: light.group
+            entities:
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 7: Tap action to toggle fold
+
+          ```
+          head:
+            entity: light.bed_light
+            tap_action:
+              action: fire-dom-event
+              fold_row: true
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+              tap_action:
+                action: fire-dom-event
+                fold_row: true
+            entities:
+              - light.bed_light
