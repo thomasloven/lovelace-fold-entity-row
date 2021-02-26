@@ -4,6 +4,7 @@ import {
   DOMAINS_HIDE_MORE_INFO,
   createEntityRow,
 } from "card-tools/src/lovelace-element.js";
+import pjson from "../package.json";
 
 class FoldEntityRow extends LitElement {
   static get properties() {
@@ -162,7 +163,6 @@ class FoldEntityRow extends LitElement {
 
 if (!customElements.get("fold-entity-row")) {
   customElements.define("fold-entity-row", FoldEntityRow);
-  const pjson = require("../package.json");
   console.info(
     `%cFOLD-ENTITY-ROW ${pjson.version} IS INSTALLED`,
     "color: green; font-weight: bold",
