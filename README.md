@@ -1,40 +1,40 @@
-fold-entity-row
-===============
-
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+# fold-entity-row
 
 Fold away and hide rows in lovelace [entities](https://www.home-assistant.io/lovelace/entities/) cards.
 
-For installation instructions [see this guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
+## Installing
 
-Install `fold-entity-row.js` as a `module`.
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
-```yaml
-resources:
-  - url: /local/fold-entity-row.js
-    type: module
-```
+Install using HACS or [see this guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
 
-## Usage
-Add this to an entities card:
+## Quick Start
+
+Add this to an [entities](https://www.home-assistant.io/lovelace/entities/) card:
 
 ```yaml
 type: entities
 entities:
-    - light.bed_light
-    - type: custom:fold-entity-row
-      head: light.bed_light
-      entities:
-        - light.bed_light
-        - light.ceiling_lights
-        - light.kitchen_lights
+  - light.bed_light
+  - type: custom:fold-entity-row
+    head: light.bed_light
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
 ```
 
 This will show the row specified in `head:` with an arrow next to it. When clicked, the rows specified in `entities:` will be revealed.
 
 ![fold-entity-row](https://user-images.githubusercontent.com/1299821/59793417-ceb2ed00-92d6-11e9-9a7a-ad0a1a85b5e6.png)
 
-### Options
+> NOTE: You wouldn't _believe_ how many people miss the first line in this section.
+>
+> Add this **TO AN ENTITIES CARD**.
+>
+> This is NOT meant to be used except in an entities card. Any usage outside an entities card is entirely unsupported, and I won't help you fix it.
+
+## Usage
 
 - `head:` and any row in `entities:` can be customized in exactly the same ways as ordinary [entities](https://www.home-assistant.io/lovelace/entities/) card rows.
 
@@ -80,7 +80,7 @@ entities:
   - light.kitchen_lights
 ```
 
-- Setting `head:` to a group will populate the entities list with the entities of that group.
+- Setting `head:` to a [group](https://www.home-assistant.io/integrations/group/) (including [light group](https://www.home-assistant.io/integrations/light.group/) or [cover group](https://www.home-assistant.io/integrations/cover.group/) ) will populate the entities list with the entities of that group.
 
 ```yaml
 type: custom:fold-entity-row
@@ -103,7 +103,7 @@ entities:
 
 ![options](https://user-images.githubusercontent.com/1299821/59793730-8ba54980-92d7-11e9-894b-50d8a437638a.png)
 
-### Advanced
+## Advanced
 
 - Folds can be nested
 
@@ -122,7 +122,7 @@ entities:
           - light.bed_light
 ```
 
-- Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
+- Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) or [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
 ```yaml
 type: custom:auto-entities
@@ -154,6 +154,28 @@ filter:
 
 ![image](https://user-images.githubusercontent.com/1299821/62471886-e4ed0d80-b79d-11e9-97b4-7edb721338cc.png)
 
+- If the header or any row in the group has the following tap-, hold- or double-tap-action defined, it will toggle the fold open or closed.
+
+```yaml
+tap_action:
+  action: fire-dom-event
+  fold_row: true
+```
+
+## More examples
+
+All my test cases are available in the `test/views` directory.
+
+You can a demo in docker by going to the `test` directory and running:
+
+```
+docker-compose up
+```
+
+Then going to `http://localhost:8125` and logging in with username `dev` and password `dev`.
+
+Or you could use the vscode devcontainer and run the task "`Run hass`".
 
 ---
+
 <a href="https://www.buymeacoffee.com/uqD6KHCdJ" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/white_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
