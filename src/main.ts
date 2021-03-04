@@ -1,6 +1,7 @@
 import { LitElement, html, css, property } from "lit-element";
 import { hass } from "card-tools/src/hass";
 import pjson from "../package.json";
+import { selectTree } from "card-tools/src/helpers";
 
 interface LovelaceElement extends HTMLElement {
   hass?: any;
@@ -74,7 +75,7 @@ class FoldEntityRow extends LitElement {
     }
 
     const el = helpers.createRowElement(config);
-    this.applyStyle(el, config);
+    this.applyStyle(el, config, head);
     if (this._hass) {
       el.hass = this._hass;
     }
@@ -82,7 +83,15 @@ class FoldEntityRow extends LitElement {
     return el;
   }
 
-  async applyStyle(root: HTMLElement, config: any) {
+  async applyStyle(root: HTMLElement, config: any, head = false) {
+    if (head) {
+      // Special styling to stretch
+      if (root.localName === "hui-section-row") {
+        root.style.minHeight = "53px";
+        const el = await selectTree(root, "$.divider");
+        el.style.marginRight = "-56px";
+      }
+    }
     await customElements.whenDefined("card-mod");
     customElements
       .get("card-mod")

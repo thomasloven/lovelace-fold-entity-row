@@ -181,3 +181,31 @@ cards:
                 fold_row: true
             entities:
               - light.bed_light
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 8: Section head
+
+          ```
+          head:
+            type: section
+          ...
+          head:
+            type: section
+            label: With text
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head:
+              type: section
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: With text
+            entities:
+              - light.bed_light
