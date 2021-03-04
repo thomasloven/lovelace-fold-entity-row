@@ -209,3 +209,51 @@ cards:
               label: With text
             entities:
               - light.bed_light
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 9: Clickable
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Unfold
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Don't unfold
+            clickable: false
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Don't unfold
+              tap_action: test
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Unfold
+              tap_action: test
+            clickable: true
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+              name: Unfold
+            clickable: true
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+              name: Don't unfold
+            entities:
+              - light.bed_light

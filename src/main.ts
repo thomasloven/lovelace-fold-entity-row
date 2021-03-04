@@ -16,12 +16,14 @@ interface FoldEntityRowConfig {
   entities?: any[];
   group_config?: any;
   padding?: number;
+  clickable?: boolean;
 }
 
 const DEFAULT_CONFIG = {
   open: false,
   padding: 24,
   group_config: {},
+  tap_unfold: undefined,
 };
 
 function ensureObject(config: any) {
@@ -43,6 +45,10 @@ class FoldEntityRow extends LitElement {
     let head = ensureObject(config.entity || config.head);
     if (!head) {
       throw new Error("No fold head specified");
+    }
+    if (this._config.clickable === undefined) {
+      if (head.entity === undefined && head.tap_action === undefined)
+        this._config.clickable = true;
     }
 
     // Items are taken from the first available of the following
@@ -114,16 +120,25 @@ class FoldEntityRow extends LitElement {
     if (this.head) this.head.hass = hass;
   }
 
-  customEvent(ev: CustomEvent) {
+  _customEvent(ev: CustomEvent) {
     const detail: any = ev.detail;
     if (detail.fold_row) {
       this.toggle(ev);
     }
   }
 
+  _handleClick(ev: CustomEvent) {
+    if (this._config.clickable) this.toggle(ev);
+  }
+
   render() {
     return html`
-      <div id="head" @ll-custom=${this.customEvent} ?open=${this.open}>
+      <div
+        id="head"
+        @ll-custom=${this._customEvent}
+        @click=${this._handleClick}
+        ?open=${this.open}
+      >
         ${this.head}
         <ha-icon
           @click=${this.toggle}
