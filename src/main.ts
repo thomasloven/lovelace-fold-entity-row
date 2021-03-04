@@ -120,6 +120,14 @@ class FoldEntityRow extends LitElement {
     if (this.head) this.head.hass = hass;
   }
 
+  firstUpdated() {
+    this.shadowRoot
+      .querySelector("#head")
+      .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
+        capture: true,
+      });
+  }
+
   _customEvent(ev: CustomEvent) {
     const detail: any = ev.detail;
     if (detail.fold_row) {
@@ -133,12 +141,7 @@ class FoldEntityRow extends LitElement {
 
   render() {
     return html`
-      <div
-        id="head"
-        @ll-custom=${this._customEvent}
-        @click=${this._handleClick}
-        ?open=${this.open}
-      >
+      <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
         ${this.head}
         <ha-icon
           @click=${this.toggle}
