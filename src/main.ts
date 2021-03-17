@@ -17,6 +17,7 @@ interface FoldEntityRowConfig {
   group_config?: any;
   padding?: number;
   clickable?: boolean;
+  mute?: boolean;
 }
 
 const DEFAULT_CONFIG = {
@@ -29,6 +30,20 @@ const DEFAULT_CONFIG = {
 function ensureObject(config: any) {
   if (config === undefined) return undefined;
   return typeof config === "string" ? { entity: config } : config;
+}
+
+export async function findParentCard(node: any, step = 0): Promise<boolean> {
+  if (step == 100) return false;
+  if (!node) return false;
+
+  if (node.localName === "hui-entities-card") return true;
+  if (node.localName === "hui-picture-elements-card") return true;
+
+  if (node.updateComplete) await node.updateComplete;
+  if (node.parentElement) return findParentCard(node.parentElement);
+  else if (node.parentNode) return findParentCard(node.parentNode);
+  if ((node as any).host) return findParentCard(node.host);
+  return false;
 }
 
 class FoldEntityRow extends LitElement {
@@ -126,6 +141,23 @@ class FoldEntityRow extends LitElement {
       .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
         capture: true,
       });
+    findParentCard(this).then((result) => {
+      if (!result && this._config.mute !== true) {
+        console.info(
+          "%cYou are doing it wrong!",
+          "color: red; font-weight: bold",
+          ""
+        );
+        console.info(
+          "Fold-entity-row should only EVER be used INSIDE an ENTITIES CARD."
+        );
+        console.info(
+          "See https://github.com/thomasloven/lovelace-fold-entity-row/issues/146"
+        );
+        // Silence this warning by placing the fold-entity-row inside an entities card.
+        // or by setting mute: true
+      }
+    });
   }
 
   _customEvent(ev: CustomEvent) {
