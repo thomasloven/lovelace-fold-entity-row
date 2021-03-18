@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: For suggesting new features
-title: ''
-labels: ''
-assignees: ''
+title: ""
+labels: "enhancement"
+assignees: ""
 ---

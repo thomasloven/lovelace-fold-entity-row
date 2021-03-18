@@ -1,5 +1,5 @@
 {
-  "name": "Card-mod Dev",
+  "name": "fold-entity-row Dev",
   "image": "thomasloven/hass-custom-devcontainer",
   "postCreateCommand": "sudo -E container setup-dev && npm add",
   "containerEnv": {
@@ -32,4 +32,3 @@
     "files.trimTrailingWhitespace": true
   }
 }
-  
