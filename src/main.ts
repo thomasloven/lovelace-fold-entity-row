@@ -50,6 +50,7 @@ class FoldEntityRow extends LitElement {
   @property() open: boolean = false;
   @property() head?: LovelaceElement;
   @property() rows?: LovelaceElement[];
+  @property() height = "0px";
   _config: FoldEntityRowConfig;
   _hass: any;
 
@@ -135,7 +136,23 @@ class FoldEntityRow extends LitElement {
     if (this.head) this.head.hass = hass;
   }
 
+  update(changedProperties) {
+    super.update(changedProperties);
+    if (changedProperties.has("open")) {
+      const el = this.shadowRoot.querySelector("#items") as HTMLElement;
+      if (this.open) this.height = `${el.scrollHeight}px`;
+      else this.height = "0px";
+    }
+  }
+
   firstUpdated() {
+    if (this._config.open) {
+      this.height = "unset";
+      window.setTimeout(() => {
+        const el = this.shadowRoot.querySelector("#items") as HTMLElement;
+        if (this.open) this.height = `${el.scrollHeight}px`;
+      }, 100);
+    }
     this.shadowRoot
       .querySelector("#head")
       .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
@@ -184,7 +201,7 @@ class FoldEntityRow extends LitElement {
       <div
         id="items"
         ?open=${this.open}
-        style=${`padding-left: ${this._config.padding}px`}
+        style=${`padding-left: ${this._config.padding}px; height: ${this.height};`}
       >
         ${this.rows}
       </div>
@@ -211,11 +228,7 @@ class FoldEntityRow extends LitElement {
         padding: 0;
         margin: 0;
         overflow: hidden;
-        max-height: 0;
-      }
-      #items[open] {
-        overflow: visible;
-        max-height: none;
+        transition: height 0.3s ease-in-out;
       }
     `;
   }
