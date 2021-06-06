@@ -180,14 +180,15 @@ class FoldEntityRow extends LitElement {
           icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
         ></ha-icon>
       </div>
-
-      <div
-        id="items"
-        ?open=${this.open}
-        style=${`padding-left: ${this._config.padding}px`}
-      >
-        ${this.rows}
-      </div>
+      ${this.open
+        ? html` <div
+            id="items"
+            ?open=${this.open}
+            style=${`padding-left: ${this._config.padding}px`}
+          >
+            ${this.rows}
+          </div>`
+        : html``}
     `;
   }
 
