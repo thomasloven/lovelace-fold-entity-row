@@ -39,66 +39,89 @@ This will show the row specified in `head:` with an arrow next to it. When click
 - `head:` and any row in `entities:` can be customized in exactly the same ways as ordinary [entities](https://www.home-assistant.io/lovelace/entities/) card rows.
 
 ```yaml
-type: custom:fold-entity-row
-head:
-  type: section
-  label: Customizations
+type: entities
 entities:
-  - light.bed_light
-  - entity: light.ceiling_lights
-    name: A light
-  - light.kitchen_lights
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: Customizations
+    entities:
+      - light.bed_light
+      - entity: light.ceiling_lights
+        name: A light
+      - light.kitchen_lights
 ```
+
+> NOTE: I'm sorry, dear reader, for insulting your intelligence and including the two lines:
+>
+> ```
+> type: entities
+> entities:
+> ```
+>
+> in every example, even though it is implied and the fact that fold-entity-row shall only ever be used in an entities card has been thoroughly beaten to death at this point.
+>
+> I really, really wish I didn't have to...
 
 - Options specified in `group_config:` will be applied to all rows in the fold.
 
 ```yaml
-type: custom:fold-entity-row
-head:
-  type: section
-  label: group_config
-group_config:
-  secondary_info: last-changed
-  icon: mdi:desk-lamp
+type: entities
 entities:
-  - light.bed_light
-  - light.ceiling_lights
-  - light.kitchen_lights
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: group_config
+    group_config:
+      secondary_info: last-changed
+      icon: mdi:desk-lamp
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
 ```
 
 - The left side padding can be adjusted by the `padding:` parameter (value in pixels).
 
 ```yaml
-type: custom:fold-entity-row
-head:
-  type: section
-  label: padding
-padding: 5
+type: entities
 entities:
-  - light.bed_light
-  - light.ceiling_lights
-  - light.kitchen_lights
+  - type: entities
+    entities:
+      - type: custom:fold-entity-row
+        head:
+          type: section
+          label: padding
+        padding: 5
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
 ```
 
 - Setting `head:` to a [group](https://www.home-assistant.io/integrations/group/) (including [light group](https://www.home-assistant.io/integrations/light.group/) or [cover group](https://www.home-assistant.io/integrations/cover.group/) ) will populate the entities list with the entities of that group.
 
 ```yaml
-type: custom:fold-entity-row
-head: group.all_lights
+type: entities
+entities:
+  - type: custom:fold-entity-row
+    head: group.all_lights
 ```
 
 - Setting `open:` to true will make the fold open by default.
 
 ```yaml
-type: custom:fold-entity-row
-head:
-  type: section
-  label: open
-open: true
+type: entities
 entities:
-  - light.bed_light
-  - light.ceiling_lights
-  - light.kitchen_lights
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: open
+    open: true
+    entities:
+      - light.bed_light
+      - light.ceiling_lights
+      - light.kitchen_lights
 ```
 
 ![options](https://user-images.githubusercontent.com/1299821/59793730-8ba54980-92d7-11e9-894b-50d8a437638a.png)
@@ -110,32 +133,36 @@ entities:
 - Folds can be nested
 
 ```yaml
-type: custom:fold-entity-row
-head:
-  type: section
-  label: Nested
+type: entities
 entities:
   - type: custom:fold-entity-row
-    head: light.bed_light
+    head:
+      type: section
+      label: Nested
     entities:
       - type: custom:fold-entity-row
         head: light.bed_light
         entities:
-          - light.bed_light
+          - type: custom:fold-entity-row
+            head: light.bed_light
+            entities:
+              - light.bed_light
 ```
 
 - Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) or [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
 ```yaml
-type: custom:auto-entities
-filter:
-  include:
-    - domain: sensor
-card:
-  type: custom:fold-entity-row
-  head:
-    type: section
-    label: Automatically populated
+type: entities
+entities:
+  - type: custom:auto-entities
+    filter:
+      include:
+        - domain: sensor
+    card:
+      type: custom:fold-entity-row
+      head:
+        type: section
+        label: Automatically populated
 ```
 
 ![advanced](https://user-images.githubusercontent.com/1299821/59793890-ed65b380-92d7-11e9-9ed6-8dc1c15d749b.png)
