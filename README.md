@@ -63,6 +63,29 @@ entities:
 >
 > I really, really wish I didn't have to...
 
+Another example of customizing the head entity:
+
+```yaml
+type: entities
+entities:
+  - light.bed_light
+  - entity: light.bed_light
+    icon: mdi:lamp
+  - type: custom:fold-entity-row
+    head:
+      entity: light.bed_light
+      icon: mdi:lamp
+    entities:
+      - light.ceiling_lights
+      - light.kitchen_lights
+```
+
+> NOTE: On a regretably similar note as above; if it's not entirely obvious to you why the configuration of `head:` looks this way, please do both of us a favor and go back to read the documentation of the [entities](https://www.home-assistant.io/lovelace/entities/) card again. \
+> Then play around with **just** the entities card for a while, get to know it, try things out, experiment. Then come back to fold-entity-rows in a week or two.
+>
+> That also applies if you've never seen `type: section` before and think that's something I just made up. \
+> I will not answer any more questions about its use. It's a Home Assistant feature, not a fold-entity-row one.
+
 - Options specified in `group_config:` will be applied to all rows in the fold.
 
 ```yaml
@@ -204,6 +227,18 @@ docker-compose up
 Then going to `http://localhost:8125` and logging in with username `dev` and password `dev`.
 
 Or you could use the vscode devcontainer and run the task "`Run hass`".
+
+## FAQ
+
+### Why all the passive aggressivenes?
+
+I'm just So Bloody Tired of this - that's why.
+
+NOT EVERYTHING IN LOVELACE IS A CARD!
+
+### Does anyone ever actually ask the questions in your Frequently Asked Questions?
+
+No
 
 ---
 

@@ -111,7 +111,7 @@ class FoldEntityRow extends LitElement {
       if (root.localName === "hui-section-row") {
         root.style.minHeight = "53px";
         const el = await selectTree(root, "$.divider");
-        el.style.marginRight = "-56px";
+        if (el) el.style.marginRight = "-56px";
       }
     }
     await customElements.whenDefined("card-mod");
