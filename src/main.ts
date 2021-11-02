@@ -115,14 +115,12 @@ class FoldEntityRow extends LitElement {
       }
     }
     await customElements.whenDefined("card-mod");
-    customElements
-      .get("card-mod")
-      .applyToElement(
-        root,
-        "row",
-        config.card_mod ? config.card_mod.style : config.style,
-        { config }
-      );
+    (customElements.get("card-mod") as any).applyToElement(
+      root,
+      "row",
+      config.card_mod ? config.card_mod.style : config.style,
+      { config }
+    );
   }
 
   toggle(ev: Event) {
