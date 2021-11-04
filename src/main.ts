@@ -18,6 +18,7 @@ interface FoldEntityRowConfig {
   padding?: number;
   clickable?: boolean;
   mute?: boolean;
+  state_color?: boolean;
 }
 
 const DEFAULT_CONFIG = {
@@ -32,12 +33,15 @@ function ensureObject(config: any) {
   return typeof config === "string" ? { entity: config } : config;
 }
 
-export async function findParentCard(node: any, step = 0): Promise<boolean> {
+export async function findParentCard(
+  node: any,
+  step = 0
+): Promise<any | false> {
   if (step == 100) return false;
   if (!node) return false;
 
-  if (node.localName === "hui-entities-card") return true;
-  if (node.localName === "hui-picture-elements-card") return true;
+  if (node.localName === "hui-entities-card") return node;
+  if (node.localName === "hui-picture-elements-card") return node;
 
   if (node.updateComplete) await node.updateComplete;
   if (node.parentElement) return findParentCard(node.parentElement);
@@ -92,8 +96,18 @@ class FoldEntityRow extends LitElement {
 
   async _createRow(config: any, head = false) {
     const helpers = await (window as any).loadCardHelpers();
+    const parentCard = await findParentCard(this);
+    const state_color =
+      this._config.state_color ?? parentCard?._config!.state_color;
+    config = {
+      state_color,
+      ...config,
+    };
     if (!head) {
-      config = Object.assign({}, this._config.group_config, config);
+      config = {
+        ...this._config.group_config,
+        ...config,
+      };
     }
 
     const el = helpers.createRowElement(config);

@@ -147,10 +147,18 @@ cards:
           ```
       - type: entities
         entities:
+          - entity: group.light_group
+            secondary_info: entity-id
           - type: custom:fold-entity-row
-            head: group.light_group
+            head:
+              entity: group.light_group
+              secondary_info: entity-id
+          - entity: light.group
+            secondary_info: entity-id
           - type: custom:fold-entity-row
-            head: light.group
+            head:
+              entity: light.group
+              secondary_info: entity-id
           - type: custom:fold-entity-row
             head: light.group
             entities:
@@ -257,3 +265,27 @@ cards:
               name: Don't unfold
             entities:
               - light.bed_light
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 10: state_color
+      - type: entities
+        title: No state_color
+        entities:
+          - switch.decorative_lights
+          - type: custom:fold-entity-row
+            open: true
+            head: switch.decorative_lights
+            entities:
+              - switch.decorative_lights
+      - type: entities
+        title: True state_color
+        state_color: true
+        entities:
+          - switch.decorative_lights
+          - type: custom:fold-entity-row
+            open: true
+            head: switch.decorative_lights
+            entities:
+              - switch.decorative_lights
