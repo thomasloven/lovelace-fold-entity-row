@@ -138,7 +138,6 @@ class FoldEntityRow extends LitElement {
   }
 
   toggle(ev: Event) {
-    if (ev) ev.stopPropagation();
     this.open = !this.open;
   }
 
@@ -165,13 +164,17 @@ class FoldEntityRow extends LitElement {
         if (this.open) this.height = `${el.scrollHeight}px`;
       }, 100);
     }
+    const actionHandler: any = document.body.querySelector("action-handler");
+    const head: any = this.shadowRoot.querySelector("#head");
     if (this._config.clickable) {
-      const head = this.shadowRoot.querySelector("#head");
-      this.shadowRoot
-        .querySelector("#head")
-        .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
+      if (!head.actionHandler && actionHandler) actionHandler.bind(head, {});
+      head.addEventListener(
+        "action",
+        (ev: CustomEvent) => this._handleClick(ev),
+        {
           capture: true,
-        });
+        }
+      );
     }
     findParentCard(this).then((result) => {
       if (!result && this._config.mute !== true) {
@@ -199,8 +202,34 @@ class FoldEntityRow extends LitElement {
     }
   }
 
-  _handleClick(ev: CustomEvent) {
-    if (this._config.clickable) this.toggle(ev);
+  async _handleClick(ev: CustomEvent) {
+    // If any other action than tap is received, that must have come from the head row
+    // It will be immediately followed
+    const hc = this._handleClick as any;
+    if (hc.coolDown) {
+      ev.stopPropagation();
+      return;
+    }
+    // If any action other than tap is received, it must have come from the head row
+    // It will be immediately followed or preceded by a tap action which
+    // we then want to ignore. This is handled through cooldowns.
+    if (ev.detail.action !== "tap") {
+      hc.coolDown = setTimeout(() => (hc.coolDown = undefined), 300);
+      if (ev.detail.action === "double_tap") hc.doubleTapped = true;
+      return;
+    }
+    const path = ev.composedPath();
+    ev.stopPropagation();
+    hc.doubleTapped = false;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    if (hc.doubleTapped) return;
+
+    // Check if the event came from the #head div
+    // Events from the head row itself are swallowed
+    if (path[0] != this.head) {
+      return;
+    }
+    this.toggle(ev);
   }
 
   render() {
