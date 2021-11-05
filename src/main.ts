@@ -165,11 +165,14 @@ class FoldEntityRow extends LitElement {
         if (this.open) this.height = `${el.scrollHeight}px`;
       }, 100);
     }
-    this.shadowRoot
-      .querySelector("#head")
-      .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
-        capture: true,
-      });
+    if (this._config.clickable) {
+      const head = this.shadowRoot.querySelector("#head");
+      this.shadowRoot
+        .querySelector("#head")
+        .addEventListener("click", (ev: CustomEvent) => this._handleClick(ev), {
+          capture: true,
+        });
+    }
     findParentCard(this).then((result) => {
       if (!result && this._config.mute !== true) {
         console.info(
@@ -202,17 +205,24 @@ class FoldEntityRow extends LitElement {
 
   render() {
     return html`
-      <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
+      <div
+        id="head"
+        @ll-custom=${this._customEvent}
+        ?open=${this.open}
+        role="${this._config.clickable ? "button" : ""}"
+      >
         ${this.head}
         <ha-icon
           @click=${this.toggle}
           icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
+          role="button"
         ></ha-icon>
       </div>
 
       <div
         id="items"
         ?open=${this.open}
+        aria-hidden="${String(!this.open)}"
         style=${`padding-left: ${this._config.padding}px; height: ${this.height};`}
       >
         ${this.rows}
