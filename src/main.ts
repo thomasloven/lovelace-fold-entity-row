@@ -1,4 +1,5 @@
-import { LitElement, html, css, property } from "lit-element";
+import { LitElement, html, css } from "lit";
+import { property } from "lit/decorators.js";
 import { hass } from "card-tools/src/hass";
 import pjson from "../package.json";
 import { selectTree } from "card-tools/src/helpers";
