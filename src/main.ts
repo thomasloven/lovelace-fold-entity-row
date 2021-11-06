@@ -122,6 +122,10 @@ class FoldEntityRow extends LitElement {
           }
         );
         this.head.tabIndex = 0;
+        this.head.setAttribute("role", "switch");
+        this.head.ariaLabel = this.open
+          ? "Toggle fold closed"
+          : "Toggle fold open";
       }
 
       this.rows = await Promise.all(
@@ -182,6 +186,12 @@ class FoldEntityRow extends LitElement {
     } else {
       this.open = true;
       this.renderRows = true;
+    }
+    if (this._config.clickable) {
+      this.head.ariaLabel = this.open
+        ? "Toggle fold closed"
+        : "Toggle fold open";
+      this.head.ariaChecked = this.open ? "true" : "false";
     }
   }
 
@@ -273,19 +283,20 @@ class FoldEntityRow extends LitElement {
 
   render() {
     return html`
-      <div
-        id="head"
-        @ll-custom=${this._customEvent}
-        ?open=${this.open}
-        role="${this._config.clickable ? "button" : ""}"
-      >
+      <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
         ${this.head}
         <ha-icon
           icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
-          role="button"
-          tabindex="0"
           @action=${this.toggle}
           .actionHandler=${actionHandler({})}
+          role="${this._config.clickable ? "" : "switch"}"
+          tabindex="${this._config.clickable ? "-1" : "0"}"
+          aria-checked=${this.open ? "true" : "false"}
+          aria-label="${this._config.clickable
+            ? ""
+            : this.open
+            ? "Toggle fold closed"
+            : "Toggle fold open"}"
         ></ha-icon>
       </div>
 
@@ -293,6 +304,7 @@ class FoldEntityRow extends LitElement {
         id="items"
         ?open=${this.open}
         aria-hidden="${String(!this.open)}"
+        aria-expanded="${String(this.open)}"
         style=${`padding-left: ${this._config.padding}px; height: ${this.height}px;`}
       >
         <div id="measure">${this.renderRows ? this.rows : ""}</div>
