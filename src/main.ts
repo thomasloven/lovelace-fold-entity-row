@@ -328,6 +328,9 @@ class FoldEntityRow extends LitElement {
         border-radius: 24px;
         background-size: cover;
       }
+      #head :not(ha-icon):focus {
+        outline: none;
+      }
 
       #items {
         padding: 0;
