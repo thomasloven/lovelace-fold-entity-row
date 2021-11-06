@@ -53,6 +53,7 @@ export async function findParentCard(
 
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
+  @property() renderRows: boolean;
   @property() head?: LovelaceElement;
   @property() rows?: LovelaceElement[];
   @property() height = 0;
@@ -64,6 +65,7 @@ class FoldEntityRow extends LitElement {
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
     this.open = this.open ?? this._config.open ?? false;
+    this.renderRows = this.open;
 
     let head = ensureObject(config.entity || config.head);
     if (!head) {
@@ -143,7 +145,13 @@ class FoldEntityRow extends LitElement {
   }
 
   toggle(ev: Event) {
-    this.open = !this.open;
+    if (this.open) {
+      this.open = false;
+      setTimeout(() => (this.renderRows = false), 350);
+    } else {
+      this.open = true;
+      this.renderRows = true;
+    }
   }
 
   set hass(hass: any) {
@@ -267,7 +275,7 @@ class FoldEntityRow extends LitElement {
         aria-hidden="${String(!this.open)}"
         style=${`padding-left: ${this._config.padding}px; height: ${this.height}px;`}
       >
-        <div id="measure">${this.rows}</div>
+        <div id="measure">${this.renderRows ? this.rows : ""}</div>
       </div>
     `;
   }
