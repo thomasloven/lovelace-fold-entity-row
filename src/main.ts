@@ -45,23 +45,25 @@ export async function findParentCard(
   if (node.localName === "hui-picture-elements-card") return node;
 
   if (node.updateComplete) await node.updateComplete;
-  if (node.parentElement) return findParentCard(node.parentElement);
-  else if (node.parentNode) return findParentCard(node.parentNode);
-  if ((node as any).host) return findParentCard(node.host);
+  if (node.parentElement) return findParentCard(node.parentElement, step + 1);
+  else if (node.parentNode) return findParentCard(node.parentNode, step + 1);
+  if ((node as any).host) return findParentCard(node.host, step + 1);
   return false;
 }
 
 class FoldEntityRow extends LitElement {
-  @property() open: boolean = false;
+  @property() open: boolean;
   @property() head?: LovelaceElement;
   @property() rows?: LovelaceElement[];
-  @property() height = "0px";
+  @property() height = 0;
+  @property() maxheight = 0;
   _config: FoldEntityRowConfig;
   _hass: any;
+  observer;
 
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
-    this.open = this.open || this._config.open;
+    this.open = this.open ?? this._config.open ?? false;
 
     let head = ensureObject(config.entity || config.head);
     if (!head) {
@@ -99,7 +101,9 @@ class FoldEntityRow extends LitElement {
     const helpers = await (window as any).loadCardHelpers();
     const parentCard = await findParentCard(this);
     const state_color =
-      this._config.state_color ?? parentCard?._config!.state_color;
+      this._config.state_color ??
+      parentCard?._config?.state_color ??
+      parentCard?.config?.state_color;
     config = {
       state_color,
       ...config,
@@ -148,23 +152,24 @@ class FoldEntityRow extends LitElement {
     if (this.head) this.head.hass = hass;
   }
 
-  update(changedProperties) {
-    super.update(changedProperties);
-    if (changedProperties.has("open")) {
-      const el = this.shadowRoot.querySelector("#items") as HTMLElement;
-      if (this.open) this.height = `${el.scrollHeight}px`;
-      else this.height = "0px";
+  async updateHeight() {
+    this.height = this.open ? this.maxheight : 0;
+  }
+
+  async updated(changedProperties) {
+    super.updated(changedProperties);
+    if (changedProperties.has("open") || changedProperties.has("maxheight")) {
+      this.updateHeight();
     }
   }
 
   firstUpdated() {
     if (this._config.open) {
-      this.height = "unset";
       window.setTimeout(() => {
-        const el = this.shadowRoot.querySelector("#items") as HTMLElement;
-        if (this.open) this.height = `${el.scrollHeight}px`;
+        this.updateHeight();
       }, 100);
     }
+
     const actionHandler: any = document.body.querySelector("action-handler");
     const head: any = this.shadowRoot.querySelector("#head");
     if (this._config.clickable) {
@@ -177,6 +182,13 @@ class FoldEntityRow extends LitElement {
         }
       );
     }
+
+    const el = this.shadowRoot.querySelector("#measure") as HTMLElement;
+    this.observer = new ResizeObserver(() => {
+      this.maxheight = el.scrollHeight;
+    });
+    this.observer.observe(el);
+
     findParentCard(this).then((result) => {
       if (!result && this._config.mute !== true) {
         console.info(
@@ -222,7 +234,7 @@ class FoldEntityRow extends LitElement {
     const path = ev.composedPath();
     ev.stopPropagation();
     hc.doubleTapped = false;
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 250));
     if (hc.doubleTapped) return;
 
     // Check if the event came from the #head div
@@ -253,9 +265,9 @@ class FoldEntityRow extends LitElement {
         id="items"
         ?open=${this.open}
         aria-hidden="${String(!this.open)}"
-        style=${`padding-left: ${this._config.padding}px; height: ${this.height};`}
+        style=${`padding-left: ${this._config.padding}px; height: ${this.height}px;`}
       >
-        ${this.rows}
+        <div id="measure">${this.rows}</div>
       </div>
     `;
   }
@@ -281,6 +293,7 @@ class FoldEntityRow extends LitElement {
         margin: 0;
         overflow: hidden;
         transition: height 0.3s ease-in-out;
+        height: 100%;
       }
     `;
   }
