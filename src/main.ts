@@ -1,8 +1,9 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, noChange } from "lit";
 import { property } from "lit/decorators.js";
 import { hass } from "card-tools/src/hass";
 import pjson from "../package.json";
 import { selectTree } from "card-tools/src/helpers";
+import { Directive, directive } from "lit/directive.js";
 
 interface LovelaceElement extends HTMLElement {
   hass?: any;
@@ -51,6 +52,23 @@ export async function findParentCard(
   return false;
 }
 
+const actionHandlerBind = (element, options) => {
+  const actionHandler: any = document.body.querySelector("action-handler");
+  if (!actionHandler) return;
+  actionHandler.bind(element, options);
+};
+
+const actionHandler = directive(
+  class extends Directive {
+    update(part, [options]) {
+      actionHandlerBind(part.element, options);
+      return noChange;
+    }
+
+    render(_options) {}
+  }
+);
+
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
   @property() renderRows: boolean;
@@ -93,6 +111,19 @@ class FoldEntityRow extends LitElement {
 
     (async () => {
       this.head = await this._createRow(head, true);
+
+      if (this._config.clickable) {
+        actionHandlerBind(this.head, {});
+        this.head.addEventListener(
+          "action",
+          (ev: CustomEvent) => this._handleClick(ev),
+          {
+            capture: true,
+          }
+        );
+        this.head.tabIndex = 0;
+      }
+
       this.rows = await Promise.all(
         items.map(async (i) => this._createRow(ensureObject(i)))
       );
@@ -178,19 +209,6 @@ class FoldEntityRow extends LitElement {
       }, 100);
     }
 
-    const actionHandler: any = document.body.querySelector("action-handler");
-    const head: any = this.shadowRoot.querySelector("#head");
-    if (this._config.clickable) {
-      if (!head.actionHandler && actionHandler) actionHandler.bind(head, {});
-      head.addEventListener(
-        "action",
-        (ev: CustomEvent) => this._handleClick(ev),
-        {
-          capture: true,
-        }
-      );
-    }
-
     const el = this.shadowRoot.querySelector("#measure") as HTMLElement;
     this.observer = new ResizeObserver(() => {
       this.maxheight = el.scrollHeight;
@@ -263,9 +281,11 @@ class FoldEntityRow extends LitElement {
       >
         ${this.head}
         <ha-icon
-          @click=${this.toggle}
           icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
           role="button"
+          tabindex="0"
+          @action=${this.toggle}
+          .actionHandler=${actionHandler({})}
         ></ha-icon>
       </div>
 
@@ -291,9 +311,22 @@ class FoldEntityRow extends LitElement {
         flex-grow: 1;
         max-width: calc(100% - var(--toggle-icon-width));
       }
-      #head ha-icon {
+      ha-icon {
         width: var(--toggle-icon-width);
         cursor: pointer;
+        border-radius: 50%;
+        background-size: cover;
+      }
+      ha-icon:focus {
+        outline: none;
+        background: var(--divider-color);
+      }
+
+      #head :not(ha-icon):focus-visible {
+        outline: none;
+        background: var(--divider-color);
+        border-radius: 24px;
+        background-size: cover;
       }
 
       #items {
