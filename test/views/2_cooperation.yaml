@@ -235,3 +235,59 @@ cards:
                   :host {
                     color: green;
                   }
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 6: No transition
+
+          ```
+          - type: custom:fold-entity-row
+            card_mod:
+              style: |
+                #items {
+                  transition: none;
+                }
+            head: light.bed_light
+            entities:
+
+          ```
+      - type: entities
+        entities:
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+              name: Default
+            entities:
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+          - type: custom:fold-entity-row
+            card_mod:
+              style: |
+                #items {
+                  transition: none!important;
+                }
+            head:
+              entity: light.bed_light
+              name: None
+            entities:
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light

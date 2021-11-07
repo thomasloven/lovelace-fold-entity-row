@@ -266,6 +266,18 @@ cards:
           - type: custom:fold-entity-row
             head:
               entity: light.bed_light
+              name: Double clickable
+              hold_action:
+                action: toggle
+              double_tap_action:
+                action: toggle
+            clickable: true
+            slowclick: true
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
               name: Don't unfold
               hold_action:
                 action: toggle

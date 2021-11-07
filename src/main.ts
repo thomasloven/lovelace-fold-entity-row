@@ -21,6 +21,7 @@ interface FoldEntityRowConfig {
   clickable?: boolean;
   mute?: boolean;
   state_color?: boolean;
+  slowclick?: boolean;
 }
 
 const DEFAULT_CONFIG = {
@@ -79,6 +80,7 @@ class FoldEntityRow extends LitElement {
   _config: FoldEntityRowConfig;
   _hass: any;
   observer;
+  slowclick = false;
 
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
@@ -90,9 +92,11 @@ class FoldEntityRow extends LitElement {
       throw new Error("No fold head specified");
     }
     if (this._config.clickable === undefined) {
-      if (head.entity === undefined && head.tap_action === undefined)
+      if (head.entity === undefined && head.tap_action === undefined) {
         this._config.clickable = true;
+      }
     }
+    if (this._config.slowclick) this.slowclick = true;
 
     // Items are taken from the first available of the following
     // - config entities: (this allows auto-population of the list)
@@ -182,7 +186,7 @@ class FoldEntityRow extends LitElement {
   toggle(ev: Event) {
     if (this.open) {
       this.open = false;
-      setTimeout(() => (this.renderRows = false), 350);
+      setTimeout(() => (this.renderRows = false), 250);
     } else {
       this.open = true;
       this.renderRows = true;
@@ -270,7 +274,8 @@ class FoldEntityRow extends LitElement {
     const path = ev.composedPath();
     ev.stopPropagation();
     hc.doubleTapped = false;
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    if (this.slowclick)
+      await new Promise((resolve) => setTimeout(resolve, 250));
     if (hc.doubleTapped) return;
 
     // Check if the event came from the #head div
@@ -305,7 +310,7 @@ class FoldEntityRow extends LitElement {
         ?open=${this.open}
         aria-hidden="${String(!this.open)}"
         aria-expanded="${String(this.open)}"
-        style=${`padding-left: ${this._config.padding}px; height: ${this.height}px;`}
+        style=${`padding-left: ${this._config.padding}px; max-height: ${this.height}px;`}
       >
         <div id="measure">${this.renderRows ? this.rows : ""}</div>
       </div>
@@ -348,7 +353,7 @@ class FoldEntityRow extends LitElement {
         padding: 0;
         margin: 0;
         overflow: hidden;
-        transition: height 0.3s ease-in-out;
+        transition: max-height 0.2s ease-in-out;
         height: 100%;
       }
     `;

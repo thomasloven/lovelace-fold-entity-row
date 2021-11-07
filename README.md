@@ -151,6 +151,8 @@ entities:
 
 - Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`.
 
+- If you want the head to be clickable (with `clickable: true`) but also want a `double_tap` action defined on it, you can add `slowclick: true` to make things work better.
+
 ## Advanced
 
 - Folds can be nested
