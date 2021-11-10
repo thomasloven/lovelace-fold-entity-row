@@ -169,9 +169,12 @@ class FoldEntityRow extends LitElement {
     if (head) {
       // Special styling to stretch
       if (root.localName === "hui-section-row") {
+        this.classList.add("section-head");
         root.style.minHeight = "53px";
         const el = await selectTree(root, "$.divider");
-        if (el) el.style.marginRight = "-56px";
+        if (el) el.style.marginRight = "-40px";
+      } else {
+        this.classList.remove("section-head");
       }
     }
     await customElements.whenDefined("card-mod");
@@ -337,6 +340,9 @@ class FoldEntityRow extends LitElement {
       ha-icon:focus {
         outline: none;
         background: var(--divider-color);
+      }
+      :host(.section-head) ha-icon {
+        margin-top: 16px;
       }
 
       #head :not(ha-icon):focus-visible {
