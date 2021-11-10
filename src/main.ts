@@ -147,14 +147,9 @@ class FoldEntityRow extends LitElement {
       parentCard?.config?.state_color;
     config = {
       state_color,
+      ...(head ? {} : this._config.group_config),
       ...config,
     };
-    if (!head) {
-      config = {
-        ...this._config.group_config,
-        ...config,
-      };
-    }
 
     const el = helpers.createRowElement(config);
     this.applyStyle(el, config, head);

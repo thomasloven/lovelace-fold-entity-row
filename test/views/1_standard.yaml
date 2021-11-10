@@ -309,3 +309,14 @@ cards:
             head: switch.decorative_lights
             entities:
               - switch.decorative_lights
+      - type: entities
+        title: Group state_color
+        entities:
+          - switch.decorative_lights
+          - type: custom:fold-entity-row
+            open: true
+            group_config:
+              state_color: true
+            head: switch.decorative_lights
+            entities:
+              - switch.decorative_lights
