@@ -312,7 +312,11 @@ class FoldEntityRow extends LitElement {
         aria-expanded="${String(this.open)}"
         style=${`padding-left: ${this._config.padding}px; max-height: ${this.height}px;`}
       >
-        <div id="measure">${this.renderRows ? this.rows : ""}</div>
+        <div id="measure">
+          ${this.renderRows
+            ? this.rows?.map((row) => html`<div>${row}</div>`)
+            : ""}
+        </div>
       </div>
     `;
   }
@@ -358,6 +362,25 @@ class FoldEntityRow extends LitElement {
         overflow: hidden;
         transition: max-height 0.2s ease-in-out;
         height: 100%;
+        overflow: clip visible;
+      }
+
+      #measure {
+        overflow: clip visible;
+      }
+      #measure > * {
+        margin: 8px 0;
+        overflow: clip visible;
+      }
+      #measure > *:last-child {
+        margin-bottom: 0;
+      }
+
+      #measure > div * {
+        overflow: clip visible;
+      }
+      #head > *:first-child {
+        overflow: clip visible;
       }
     `;
   }
