@@ -211,6 +211,8 @@ class FoldEntityRow extends LitElement {
     super.updated(changedProperties);
     if (changedProperties.has("open") || changedProperties.has("maxheight")) {
       this.updateHeight();
+      if ((this as any)._cardMod)
+        (this as any)._cardMod.forEach((cm) => cm.refresh());
     }
   }
 
