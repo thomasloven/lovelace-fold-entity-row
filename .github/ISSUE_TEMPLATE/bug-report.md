@@ -19,7 +19,7 @@ What happened instead:
 **Minimal** steps to reproduce:
 
 ```yaml
-# The least ammount of code possible to reproduce my error
+# The least amount of code possible to reproduce my error
 
 # End of code
 ```
