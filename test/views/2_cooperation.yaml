@@ -91,6 +91,19 @@ cards:
               type: custom:fold-entity-row
               head: { entity: light.bed_light }
               open: true
+      - type: entities
+        entities:
+          - type: custom:hui-entity-filter-card
+            entities:
+              - light.bed_light
+              - light.ceiling_lights
+              - light.kitchen_lights
+            state_filter:
+              - "on"
+            card:
+              type: custom:fold-entity-row
+              head: { type: section, label: Section }
+              open: true
 
   - type: vertical-stack
     cards:

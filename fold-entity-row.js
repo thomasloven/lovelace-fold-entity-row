@@ -325,10 +325,15 @@ class FoldEntityRow extends s {
             }, 100);
         }
         const el = this.shadowRoot.querySelector("#measure");
-        this.observer = new ResizeObserver(() => {
-            this.maxheight = el.scrollHeight;
-        });
-        this.observer.observe(el);
+        try {
+            this.observer = new ResizeObserver(() => {
+                this.maxheight = el.scrollHeight;
+            });
+            this.observer.observe(el);
+        }
+        catch (_e) {
+            this.maxheight = 1e6;
+        }
     }
     connectedCallback() {
         super.connectedCallback();
@@ -459,10 +464,10 @@ class FoldEntityRow extends s {
       #items {
         padding: 0;
         margin: 0;
-        overflow: hidden;
         transition: max-height 0.2s ease-in-out;
         height: 100%;
-        overflow: clip visible;
+        overflow-x: clip;
+        overflow-y: visible;
       }
 
       #items.clip {
@@ -470,21 +475,25 @@ class FoldEntityRow extends s {
       }
 
       #measure {
-        overflow: clip visible;
+        overflow-x: clip;
+        overflow-y: visible;
       }
       #measure > * {
         margin: 8px 0;
-        overflow: clip visible;
+        overflow-x: clip;
+        overflow-y: visible;
       }
       #measure > *:last-child {
         margin-bottom: 0;
       }
 
       #measure > div * {
-        overflow: clip visible;
+        overflow-x: clip;
+        overflow-y: visible;
       }
       #head > *:first-child {
-        overflow: clip visible;
+        overflow-x: clip;
+        overflow-y: visible;
       }
     `;
     }
