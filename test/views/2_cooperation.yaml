@@ -291,3 +291,20 @@ cards:
               - light.bed_light
               - light.bed_light
               - light.bed_light
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 6: Entity in auto-entities
+      - type: custom:auto-entities
+        card:
+          type: entities
+        filter:
+          include:
+            - domain: light
+        entities:
+          - type: custom:fold-entity-row
+            head: light.bed_light
+            entities:
+              - light.ceiling_lights
+              - light.kitchen_lights

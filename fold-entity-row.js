@@ -197,6 +197,7 @@ class FoldEntityRow extends s {
         super(...arguments);
         this.height = 0;
         this.maxheight = 0;
+        this.entitiesWarning = false;
         this.slowclick = false;
     }
     setConfig(config) {
@@ -328,15 +329,25 @@ class FoldEntityRow extends s {
             this.maxheight = el.scrollHeight;
         });
         this.observer.observe(el);
-        findParentCard(this).then((result) => {
-            if (!result && this._config.mute !== true) {
-                console.info("%cYou are doing it wrong!", "color: red; font-weight: bold", "");
-                console.info("Fold-entity-row should only EVER be used INSIDE an ENTITIES CARD.");
-                console.info("See https://github.com/thomasloven/lovelace-fold-entity-row/issues/146");
-                // Silence this warning by placing the fold-entity-row inside an entities card.
-                // or by setting mute: true
-            }
-        });
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        window.setTimeout(() => {
+            if (!this.isConnected || this.entitiesWarning)
+                return;
+            findParentCard(this).then((result) => {
+                if (!result && this._config.mute !== true) {
+                    this.entitiesWarning = true;
+                    console.group("%cYou are doing it wrong!", "color: red; font-weight: bold");
+                    console.info("Fold-entity-row should only EVER be used INSIDE an ENTITIES CARD.");
+                    console.info("See https://github.com/thomasloven/lovelace-fold-entity-row/issues/146");
+                    console.info(this);
+                    console.groupEnd();
+                    // Silence this warning by placing the fold-entity-row inside an entities card.
+                    // or by setting mute: true
+                }
+            });
+        }, 1000);
     }
     _customEvent(ev) {
         const detail = ev.detail;
@@ -496,6 +507,9 @@ __decorate([
 __decorate([
     e$1()
 ], FoldEntityRow.prototype, "maxheight", void 0);
+__decorate([
+    e$1()
+], FoldEntityRow.prototype, "entitiesWarning", void 0);
 if (!customElements.get("fold-entity-row")) {
     customElements.define("fold-entity-row", FoldEntityRow);
     console.info(`%cFOLD-ENTITY-ROW ${pjson.version} IS INSTALLED`, "color: green; font-weight: bold", "");

@@ -77,6 +77,7 @@ class FoldEntityRow extends LitElement {
   @property() rows?: LovelaceElement[];
   @property() height = 0;
   @property() maxheight = 0;
+  @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
   observer;
@@ -234,24 +235,32 @@ class FoldEntityRow extends LitElement {
       this.maxheight = el.scrollHeight;
     });
     this.observer.observe(el);
+  }
 
-    findParentCard(this).then((result) => {
-      if (!result && this._config.mute !== true) {
-        console.info(
-          "%cYou are doing it wrong!",
-          "color: red; font-weight: bold",
-          ""
-        );
-        console.info(
-          "Fold-entity-row should only EVER be used INSIDE an ENTITIES CARD."
-        );
-        console.info(
-          "See https://github.com/thomasloven/lovelace-fold-entity-row/issues/146"
-        );
-        // Silence this warning by placing the fold-entity-row inside an entities card.
-        // or by setting mute: true
-      }
-    });
+  connectedCallback(): void {
+    super.connectedCallback();
+    window.setTimeout(() => {
+      if (!this.isConnected || this.entitiesWarning) return;
+      findParentCard(this).then((result) => {
+        if (!result && this._config.mute !== true) {
+          this.entitiesWarning = true;
+          console.group(
+            "%cYou are doing it wrong!",
+            "color: red; font-weight: bold"
+          );
+          console.info(
+            "Fold-entity-row should only EVER be used INSIDE an ENTITIES CARD."
+          );
+          console.info(
+            "See https://github.com/thomasloven/lovelace-fold-entity-row/issues/146"
+          );
+          console.info(this);
+          console.groupEnd();
+          // Silence this warning by placing the fold-entity-row inside an entities card.
+          // or by setting mute: true
+        }
+      });
+    }, 1000);
   }
 
   _customEvent(ev: CustomEvent) {
