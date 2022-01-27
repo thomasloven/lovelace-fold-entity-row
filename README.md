@@ -149,7 +149,8 @@ entities:
 
 ![options](https://user-images.githubusercontent.com/1299821/59793730-8ba54980-92d7-11e9-894b-50d8a437638a.png)
 
-- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`.
+- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`. \
+  This should only be used in exceptions, though. If your row supports `tap_action` use the `fire-dom-event` method described below instead.
 
 - If you want the head to be clickable (with `clickable: true`) but also want a `double_tap` action defined on it, you can add `slowclick: true` to make things work better.
 

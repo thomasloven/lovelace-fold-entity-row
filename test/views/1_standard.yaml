@@ -266,6 +266,19 @@ cards:
           - type: custom:fold-entity-row
             head:
               entity: light.bed_light
+              name: Unfold tap_action
+              tap_action:
+                action: fire-dom-event
+                fold_row: true
+              hold_action:
+                action: toggle
+              double_tap_action:
+                action: toggle
+            entities:
+              - light.bed_light
+          - type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
               name: Double clickable
               hold_action:
                 action: toggle
