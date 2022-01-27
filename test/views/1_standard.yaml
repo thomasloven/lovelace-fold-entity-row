@@ -320,3 +320,17 @@ cards:
             head: switch.decorative_lights
             entities:
               - switch.decorative_lights
+
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 11: Overflow
+      - type: entities
+        entities:
+          - input_number.test
+          - type: custom:fold-entity-row
+            open: true
+            head: input_number.test
+            entities:
+              - input_number.test

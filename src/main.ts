@@ -182,12 +182,18 @@ class FoldEntityRow extends LitElement {
   }
 
   toggle(ev: Event) {
+    this.shadowRoot.querySelector("#items")?.classList.add("clip");
     if (this.open) {
       this.open = false;
-      setTimeout(() => (this.renderRows = false), 250);
+      setTimeout(() => {
+        this.renderRows = false;
+      }, 250);
     } else {
       this.open = true;
       this.renderRows = true;
+      setTimeout(() => {
+        this.shadowRoot.querySelector("#items")?.classList.remove("clip");
+      }, 250);
     }
     if (this._config.clickable) {
       this.head.ariaLabel = this.open
@@ -363,6 +369,10 @@ class FoldEntityRow extends LitElement {
         transition: max-height 0.2s ease-in-out;
         height: 100%;
         overflow: clip visible;
+      }
+
+      #items.clip {
+        overflow: clip;
       }
 
       #measure {

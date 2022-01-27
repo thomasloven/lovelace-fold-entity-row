@@ -10,6 +10,11 @@ lovelace:
       title: yaml
       filename: test/lovelace.yaml
 
+input_number:
+  test:
+    min: 0
+    max: 100
+
 light:
   - platform: group
     name: group
