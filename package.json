@@ -1,7 +1,7 @@
 {
   "name": "fold-entity-row",
   "private": true,
-  "version": "20.0.13",
+  "version": "20.0.14",
   "description": "",
   "scripts": {
     "build": "rollup -c",

@@ -22,6 +22,7 @@ interface FoldEntityRowConfig {
   mute?: boolean;
   state_color?: boolean;
   slowclick?: boolean;
+  no_animation?: boolean;
 }
 
 const DEFAULT_CONFIG = {
@@ -186,15 +187,21 @@ class FoldEntityRow extends LitElement {
     this.shadowRoot.querySelector("#items")?.classList.add("clip");
     if (this.open) {
       this.open = false;
-      setTimeout(() => {
-        this.renderRows = false;
-      }, 250);
+      setTimeout(
+        () => {
+          this.renderRows = false;
+        },
+        this._config.no_animation ? 1 : 250
+      );
     } else {
       this.open = true;
       this.renderRows = true;
-      setTimeout(() => {
-        this.shadowRoot.querySelector("#items")?.classList.remove("clip");
-      }, 250);
+      setTimeout(
+        () => {
+          this.shadowRoot.querySelector("#items")?.classList.remove("clip");
+        },
+        this._config.no_animation ? 1 : 250
+      );
     }
     if (this._config.clickable) {
       this.head.ariaLabel = this.open
@@ -233,10 +240,19 @@ class FoldEntityRow extends LitElement {
     const el = this.shadowRoot.querySelector("#measure") as HTMLElement;
     try {
       this.observer = new ResizeObserver(() => {
+        // If a change happens to the height of an internal element
+        // turn off animation, update height, redraw,
+        // and then turn animations back on.
+        this.shadowRoot.querySelector("#items")?.classList.add("transit");
         this.maxheight = el.scrollHeight;
+        this.updateHeight();
+        this.updateComplete.then(() =>
+          this.shadowRoot.querySelector("#items")?.classList.remove("transit")
+        );
       });
       this.observer.observe(el);
     } catch (_e) {
+      // Old safari versions don't have ResizeObserver
       this.maxheight = 1e6;
     }
   }
@@ -330,6 +346,7 @@ class FoldEntityRow extends LitElement {
         aria-hidden="${String(!this.open)}"
         aria-expanded="${String(this.open)}"
         style=${`padding-left: ${this._config.padding}px; max-height: ${this.height}px;`}
+        class=${this._config.no_animation ? "notransition" : ""}
       >
         <div id="measure">
           ${this.renderRows
@@ -386,6 +403,12 @@ class FoldEntityRow extends LitElement {
 
       #items.clip {
         overflow: clip;
+      }
+      #items.notransition {
+        transition: none;
+      }
+      #items.transit {
+        transition: none;
       }
 
       #measure {

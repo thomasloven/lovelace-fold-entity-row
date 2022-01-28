@@ -304,6 +304,23 @@ cards:
               - light.bed_light
               - light.bed_light
               - light.bed_light
+          - type: custom:fold-entity-row
+            no_animation: true
+            head:
+              entity: light.bed_light
+              name: no_animation
+            entities:
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
+              - light.bed_light
   - type: vertical-stack
     cards:
       - <<: *desc

@@ -217,6 +217,8 @@ tap_action:
   fold_row: true
 ```
 
+- You can disable the smooth open and close animation with `no_animation: true`
+
 ## More examples
 
 All my test cases are available in the `test/views` directory.
