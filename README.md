@@ -149,10 +149,16 @@ entities:
 
 ![options](https://user-images.githubusercontent.com/1299821/59793730-8ba54980-92d7-11e9-894b-50d8a437638a.png)
 
-- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`. \
-  This should only be used in exceptions, though. If your row supports `tap_action` use the `fire-dom-event` method described below instead.
+- If the header or any row in the group has the following tap-, hold- or double-tap-action defined, it will toggle the fold open or closed:
 
-- If you want the head to be clickable (with `clickable: true`) but also want a `double_tap` action defined on it, you can add `slowclick: true` to make things work better.
+```yaml
+tap_action:
+  action: fire-dom-event
+  fold_row: true
+```
+
+- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`. \
+  This should only be used in exceptions, though. If your row supports `tap_action` use `fire-dom-event` instead.
 
 ## Advanced
 
@@ -209,14 +215,6 @@ filter:
 
 ![image](https://user-images.githubusercontent.com/1299821/62471886-e4ed0d80-b79d-11e9-97b4-7edb721338cc.png)
 
-- If the header or any row in the group has the following tap-, hold- or double-tap-action defined, it will toggle the fold open or closed.
-
-```yaml
-tap_action:
-  action: fire-dom-event
-  fold_row: true
-```
-
 - You can disable the smooth open and close animation with `no_animation: true`
 
 ## More examples
@@ -235,6 +233,14 @@ Or you could use the vscode devcontainer and run the task "`Run hass`".
 
 ## FAQ
 
+### Why isn't the card header toggle working with all the entities in my fold?
+
+This is a limitation in Home Assistant. The header toggle will look at each entry in the `entities` card, and if it has an `entity` option, it will toggle that. Nothing more.
+
+### Why is there a line above the section row?
+
+Because that's how the [Home Assistant Section Entities Row](https://www.home-assistant.io/lovelace/entities/#section) looks.
+
 ### Why all the passive aggressivenes?
 
 I'm just So Bloody Tired of this - that's why.
@@ -244,6 +250,10 @@ NOT EVERYTHING IN LOVELACE IS A CARD!
 ### Does anyone ever actually ask the questions in your Frequently Asked Questions?
 
 No
+
+### Why doesn't this card have a background?
+
+Please leave
 
 ---
 

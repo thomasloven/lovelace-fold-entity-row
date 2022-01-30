@@ -80,7 +80,7 @@ class FoldEntityRow extends LitElement {
   @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
-  slowclick = false;
+  _toggleCooldown = false;
 
   @query("#items") itemsContainer;
   @query("#measure") measureContainer;
@@ -98,7 +98,6 @@ class FoldEntityRow extends LitElement {
         this._config.clickable = true;
       }
     }
-    if (this._config.slowclick) this.slowclick = true;
 
     // Items are taken from the first available of the following
     // - config entities: (this allows auto-population of the list)
@@ -122,7 +121,7 @@ class FoldEntityRow extends LitElement {
         actionHandlerBind(this.head, {});
         this.head.addEventListener(
           "action",
-          (ev: CustomEvent) => this._handleClick(ev),
+          (ev: CustomEvent) => this.toggle(ev),
           {
             capture: true,
           }
@@ -198,7 +197,11 @@ class FoldEntityRow extends LitElement {
     await this.updateComplete;
   }
 
-  async toggle(ev: Event) {
+  async toggle(ev: CustomEvent) {
+    if (ev) ev.stopPropagation();
+    if (this._toggleCooldown) return;
+    this._toggleCooldown = true;
+    setTimeout(() => (this._toggleCooldown = false), TRANSITION_DELAY + 50);
     this.itemsContainer.classList.add("clip");
     if (this.open) {
       await this.snapHeight(this.measureContainer.scrollHeight);
@@ -277,37 +280,6 @@ class FoldEntityRow extends LitElement {
     if (detail.fold_row) {
       this.toggle(ev);
     }
-  }
-
-  async _handleClick(ev: CustomEvent) {
-    // If any other action than tap is received, that must have come from the head row
-    // It will be immediately followed
-    const hc = this._handleClick as any;
-    if (hc.coolDown) {
-      ev.stopPropagation();
-      return;
-    }
-    // If any action other than tap is received, it must have come from the head row
-    // It will be immediately followed or preceded by a tap action which
-    // we then want to ignore. This is handled through cooldowns.
-    if (ev.detail.action !== "tap") {
-      hc.coolDown = setTimeout(() => (hc.coolDown = undefined), 300);
-      if (ev.detail.action === "double_tap") hc.doubleTapped = true;
-      return;
-    }
-    const path = ev.composedPath();
-    ev.stopPropagation();
-    hc.doubleTapped = false;
-    if (this.slowclick)
-      await new Promise((resolve) => setTimeout(resolve, 250));
-    if (hc.doubleTapped) return;
-
-    // Check if the event came from the #head div
-    // Events from the head row itself are swallowed
-    if (path[0] != this.head) {
-      return;
-    }
-    this.toggle(ev);
   }
 
   render() {

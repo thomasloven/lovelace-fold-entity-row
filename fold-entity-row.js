@@ -210,7 +210,7 @@ class FoldEntityRow extends s {
     constructor() {
         super(...arguments);
         this.entitiesWarning = false;
-        this.slowclick = false;
+        this._toggleCooldown = false;
     }
     setConfig(config) {
         var _a, _b, _c, _d;
@@ -225,8 +225,6 @@ class FoldEntityRow extends s {
                 this._config.clickable = true;
             }
         }
-        if (this._config.slowclick)
-            this.slowclick = true;
         // Items are taken from the first available of the following
         // - config entities: (this allows auto-population of the list)
         // - config items: (for backwards compatibility - not recommended)
@@ -245,7 +243,7 @@ class FoldEntityRow extends s {
             this.head = await this._createRow(head, true);
             if (this._config.clickable) {
                 actionHandlerBind(this.head, {});
-                this.head.addEventListener("action", (ev) => this._handleClick(ev), {
+                this.head.addEventListener("action", (ev) => this.toggle(ev), {
                     capture: true,
                 });
                 this.head.tabIndex = 0;
@@ -302,6 +300,12 @@ class FoldEntityRow extends s {
         await this.updateComplete;
     }
     async toggle(ev) {
+        if (ev)
+            ev.stopPropagation();
+        if (this._toggleCooldown)
+            return;
+        this._toggleCooldown = true;
+        setTimeout(() => (this._toggleCooldown = false), TRANSITION_DELAY + 50);
         this.itemsContainer.classList.add("clip");
         if (this.open) {
             await this.snapHeight(this.measureContainer.scrollHeight);
@@ -369,37 +373,6 @@ class FoldEntityRow extends s {
         if (detail.fold_row) {
             this.toggle(ev);
         }
-    }
-    async _handleClick(ev) {
-        // If any other action than tap is received, that must have come from the head row
-        // It will be immediately followed
-        const hc = this._handleClick;
-        if (hc.coolDown) {
-            ev.stopPropagation();
-            return;
-        }
-        // If any action other than tap is received, it must have come from the head row
-        // It will be immediately followed or preceded by a tap action which
-        // we then want to ignore. This is handled through cooldowns.
-        if (ev.detail.action !== "tap") {
-            hc.coolDown = setTimeout(() => (hc.coolDown = undefined), 300);
-            if (ev.detail.action === "double_tap")
-                hc.doubleTapped = true;
-            return;
-        }
-        const path = ev.composedPath();
-        ev.stopPropagation();
-        hc.doubleTapped = false;
-        if (this.slowclick)
-            await new Promise((resolve) => setTimeout(resolve, 250));
-        if (hc.doubleTapped)
-            return;
-        // Check if the event came from the #head div
-        // Events from the head row itself are swallowed
-        if (path[0] != this.head) {
-            return;
-        }
-        this.toggle(ev);
     }
     render() {
         var _a;
