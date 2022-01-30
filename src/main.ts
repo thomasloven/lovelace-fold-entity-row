@@ -251,6 +251,14 @@ class FoldEntityRow extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.updateComplete.then(() => {
+      if (this._config.open) {
+        this.itemsContainer.style.maxHeight = "1000000px";
+      } else {
+        this.itemsContainer.style.maxHeight = "0px";
+        this.itemsContainer.classList.add("clip");
+      }
+    });
     window.setTimeout(() => {
       if (!this.isConnected || this.entitiesWarning) return;
       findParentCard(this).then((result) => {
@@ -322,6 +330,7 @@ class FoldEntityRow extends LitElement {
         display: flex;
         align-items: center;
         --toggle-icon-width: 32px;
+        margin-right: -8px;
       }
       #head :not(ha-icon) {
         flex-grow: 1;
