@@ -1,5 +1,5 @@
 import { LitElement, html, css, noChange } from "lit";
-import { property } from "lit/decorators.js";
+import { property, query } from "lit/decorators.js";
 import { hass } from "card-tools/src/hass";
 import pjson from "../package.json";
 import { selectTree } from "card-tools/src/helpers";
@@ -31,6 +31,8 @@ const DEFAULT_CONFIG = {
   group_config: {},
   tap_unfold: undefined,
 };
+
+const TRANSITION_DELAY = 200;
 
 function ensureObject(config: any) {
   if (config === undefined) return undefined;
@@ -73,21 +75,19 @@ const actionHandler = directive(
 
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
-  @property() renderRows: boolean;
   @property() head?: LovelaceElement;
   @property() rows?: LovelaceElement[];
-  @property() height = 0;
-  @property() maxheight = 0;
   @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
-  observer;
   slowclick = false;
+
+  @query("#items") itemsContainer;
+  @query("#measure") measureContainer;
 
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
     this.open = this.open ?? this._config.open ?? false;
-    this.renderRows = this.open;
 
     let head = ensureObject(config.entity || config.head);
     if (!head) {
@@ -183,26 +183,38 @@ class FoldEntityRow extends LitElement {
     );
   }
 
-  toggle(ev: Event) {
-    this.shadowRoot.querySelector("#items")?.classList.add("clip");
+  async snapHeight(height: number) {
+    this.itemsContainer.style.transition = "none";
+    getComputedStyle(this.itemsContainer).transition;
+    this.itemsContainer.style.maxHeight = `${height}px`;
+    getComputedStyle(this.itemsContainer).maxHeight;
+    this.itemsContainer.style.transition = null;
+  }
+
+  async flowHeight(height: number) {
+    if (this._config.no_animation) return this.snapHeight(height);
+    this.itemsContainer.style.maxHeight = `${height}px`;
+    this.requestUpdate();
+    await this.updateComplete;
+  }
+
+  async toggle(ev: Event) {
+    this.itemsContainer.classList.add("clip");
     if (this.open) {
+      await this.snapHeight(this.measureContainer.scrollHeight);
       this.open = false;
-      setTimeout(
-        () => {
-          this.renderRows = false;
-        },
-        this._config.no_animation ? 1 : 250
-      );
+      await this.flowHeight(0);
     } else {
+      await this.flowHeight(this.measureContainer.scrollHeight);
       this.open = true;
-      this.renderRows = true;
+      setTimeout(() => this.snapHeight(1e6), TRANSITION_DELAY + 50);
       setTimeout(
-        () => {
-          this.shadowRoot.querySelector("#items")?.classList.remove("clip");
-        },
-        this._config.no_animation ? 1 : 250
+        () => this.itemsContainer.classList.remove("clip"),
+        TRANSITION_DELAY + 50
       );
     }
+
+    // Accessibility
     if (this._config.clickable) {
       this.head.ariaLabel = this.open
         ? "Toggle fold closed"
@@ -217,14 +229,9 @@ class FoldEntityRow extends LitElement {
     if (this.head) this.head.hass = hass;
   }
 
-  async updateHeight() {
-    this.height = this.open ? this.maxheight : 0;
-  }
-
   async updated(changedProperties) {
     super.updated(changedProperties);
-    if (changedProperties.has("open") || changedProperties.has("maxheight")) {
-      this.updateHeight();
+    if (changedProperties.has("open")) {
       if ((this as any)._cardMod)
         (this as any)._cardMod.forEach((cm) => cm.refresh());
     }
@@ -232,28 +239,10 @@ class FoldEntityRow extends LitElement {
 
   firstUpdated() {
     if (this._config.open) {
-      window.setTimeout(() => {
-        this.updateHeight();
-      }, 100);
-    }
-
-    const el = this.shadowRoot.querySelector("#measure") as HTMLElement;
-    try {
-      this.observer = new ResizeObserver(() => {
-        // If a change happens to the height of an internal element
-        // turn off animation, update height, redraw,
-        // and then turn animations back on.
-        this.shadowRoot.querySelector("#items")?.classList.add("transit");
-        this.maxheight = el.scrollHeight;
-        this.updateHeight();
-        this.updateComplete.then(() =>
-          this.shadowRoot.querySelector("#items")?.classList.remove("transit")
-        );
-      });
-      this.observer.observe(el);
-    } catch (_e) {
-      // Old safari versions don't have ResizeObserver
-      this.maxheight = 1e6;
+      this.itemsContainer.style.maxHeight = "1000000px";
+    } else {
+      this.itemsContainer.style.maxHeight = "0px";
+      this.itemsContainer.classList.add("clip");
     }
   }
 
@@ -345,13 +334,11 @@ class FoldEntityRow extends LitElement {
         ?open=${this.open}
         aria-hidden="${String(!this.open)}"
         aria-expanded="${String(this.open)}"
-        style=${`padding-left: ${this._config.padding}px; max-height: ${this.height}px;`}
+        style=${`padding-left: ${this._config.padding}px;`}
         class=${this._config.no_animation ? "notransition" : ""}
       >
         <div id="measure">
-          ${this.renderRows
-            ? this.rows?.map((row) => html`<div>${row}</div>`)
-            : ""}
+          ${this.rows?.map((row) => html`<div>${row}</div>`)}
         </div>
       </div>
     `;
@@ -395,42 +382,24 @@ class FoldEntityRow extends LitElement {
       #items {
         padding: 0;
         margin: 0;
-        transition: max-height 0.2s ease-in-out;
+        transition: max-height ${TRANSITION_DELAY}ms ease-in-out;
         height: 100%;
-        overflow-x: clip;
-        overflow-y: visible;
       }
-
       #items.clip {
         overflow: clip;
       }
       #items.notransition {
         transition: none;
       }
-      #items.transit {
-        transition: none;
-      }
 
-      #measure {
-        overflow-x: clip;
-        overflow-y: visible;
-      }
       #measure > * {
         margin: 8px 0;
-        overflow-x: clip;
-        overflow-y: visible;
+      }
+      #measure > *:first-child {
+        margin-top: 0;
       }
       #measure > *:last-child {
         margin-bottom: 0;
-      }
-
-      #measure > div * {
-        overflow-x: clip;
-        overflow-y: visible;
-      }
-      #head > *:first-child {
-        overflow-x: clip;
-        overflow-y: visible;
       }
     `;
   }
