@@ -28,7 +28,7 @@ function t(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPro
       #head {
         display: flex;
         align-items: center;
-        --toggle-icon-width: 24px;
+        --toggle-icon-width: 32px;
       }
       #head :not(ha-icon) {
         flex-grow: 1;
@@ -39,6 +39,7 @@ function t(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPro
         cursor: pointer;
         border-radius: 50%;
         background-size: cover;
+        --mdc-icon-size: var(--toggle-icon-width);
       }
       ha-icon:focus {
         outline: none;
@@ -65,7 +66,7 @@ function t(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPro
         height: 100%;
       }
       #items.clip {
-        overflow: clip;
+        overflow: hidden;
       }
       #items.notransition {
         transition: none;

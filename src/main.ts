@@ -321,7 +321,7 @@ class FoldEntityRow extends LitElement {
       #head {
         display: flex;
         align-items: center;
-        --toggle-icon-width: 24px;
+        --toggle-icon-width: 32px;
       }
       #head :not(ha-icon) {
         flex-grow: 1;
@@ -332,6 +332,7 @@ class FoldEntityRow extends LitElement {
         cursor: pointer;
         border-radius: 50%;
         background-size: cover;
+        --mdc-icon-size: var(--toggle-icon-width);
       }
       ha-icon:focus {
         outline: none;
@@ -358,7 +359,7 @@ class FoldEntityRow extends LitElement {
         height: 100%;
       }
       #items.clip {
-        overflow: clip;
+        overflow: hidden;
       }
       #items.notransition {
         transition: none;
