@@ -215,8 +215,6 @@ filter:
 
 ![image](https://user-images.githubusercontent.com/1299821/62471886-e4ed0d80-b79d-11e9-97b4-7edb721338cc.png)
 
-- You can disable the smooth open and close animation with `no_animation: true`
-
 ## More examples
 
 All my test cases are available in the `test/views` directory.

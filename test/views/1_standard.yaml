@@ -20,19 +20,25 @@ x-anchors:
 
 title: Standard
 cards:
-  - <<: *desc
-    content: |
-      ## 0: Common configuration
-      ```
-      default: &default
-        type: custom:fold-entity-row
-        head:
-          entity: light.bed_light
+  - type: vertical-stack
+    cards:
+      - <<: *desc
+        content: |
+          ## 0: Common configuration
+          ```
+          default: &default
+            type: custom:fold-entity-row
+            head:
+              entity: light.bed_light
+            entities:
+              - light.bed_light
+              - light.ceiling_lights
+              - light.kitchen_lights
+          ```
+      - type: entities
         entities:
-          - light.bed_light
-          - light.ceiling_lights
-          - light.kitchen_lights
-      ```
+          - type: cast
+            view: 0
 
   - type: vertical-stack
     cards:

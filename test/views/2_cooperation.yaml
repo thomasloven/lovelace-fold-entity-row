@@ -252,50 +252,25 @@ cards:
     cards:
       - <<: *desc
         content: |
-          ## 6: No transition
-
-          ```
-          - type: custom:fold-entity-row
-            card_mod:
-              style: |
-                #items {
-                  transition: none;
-                }
-            head: light.bed_light
-            entities:
-
-          ```
+          ## 6: Scrollbars
       - type: entities
         entities:
           - type: custom:fold-entity-row
             head:
               entity: light.bed_light
               name: Default
-            entities:
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-          - type: custom:fold-entity-row
             card_mod:
               style: |
                 #items {
-                  transition: none!important;
+                  max-height: 300px;
+                  overflow-y: scroll;
+                  overflow-x: hidden;
                 }
-            head:
-              entity: light.bed_light
-              name: None
             entities:
               - light.bed_light
               - light.bed_light
               - light.bed_light
+              - type: section
               - light.bed_light
               - light.bed_light
               - light.bed_light
@@ -304,39 +279,7 @@ cards:
               - light.bed_light
               - light.bed_light
               - light.bed_light
-          - type: custom:fold-entity-row
-            no_animation: true
-            head:
-              entity: light.bed_light
-              name: no_animation
-            entities:
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-          - type: custom:fold-entity-row
-            head:
-              entity: light.bed_light
-              name: Default
-            entities:
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
-              - light.bed_light
+
   - type: vertical-stack
     cards:
       - <<: *desc

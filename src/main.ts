@@ -21,8 +21,6 @@ interface FoldEntityRowConfig {
   clickable?: boolean;
   mute?: boolean;
   state_color?: boolean;
-  slowclick?: boolean;
-  no_animation?: boolean;
 }
 
 const DEFAULT_CONFIG = {
@@ -31,8 +29,6 @@ const DEFAULT_CONFIG = {
   group_config: {},
   tap_unfold: undefined,
 };
-
-const TRANSITION_DELAY = 200;
 
 function ensureObject(config: any) {
   if (config === undefined) return undefined;
@@ -80,10 +76,6 @@ class FoldEntityRow extends LitElement {
   @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
-  _toggleCooldown = false;
-
-  @query("#items") itemsContainer;
-  @query("#measure") measureContainer;
 
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
@@ -168,7 +160,7 @@ class FoldEntityRow extends LitElement {
         this.classList.add("section-head");
         root.style.minHeight = "53px";
         const el = await selectTree(root, "$.divider");
-        if (el) el.style.marginRight = "-40px";
+        if (el) el.style.marginRight = "-48px";
       } else {
         this.classList.remove("section-head");
       }
@@ -182,40 +174,9 @@ class FoldEntityRow extends LitElement {
     );
   }
 
-  async snapHeight(height: number) {
-    this.itemsContainer.style.transition = "none";
-    getComputedStyle(this.itemsContainer).transition;
-    this.itemsContainer.style.maxHeight = `${height}px`;
-    getComputedStyle(this.itemsContainer).maxHeight;
-    this.itemsContainer.style.transition = null;
-  }
-
-  async flowHeight(height: number) {
-    if (this._config.no_animation) return this.snapHeight(height);
-    this.itemsContainer.style.maxHeight = `${height}px`;
-    this.requestUpdate();
-    await this.updateComplete;
-  }
-
   async toggle(ev: CustomEvent) {
     if (ev) ev.stopPropagation();
-    if (this._toggleCooldown) return;
-    this._toggleCooldown = true;
-    setTimeout(() => (this._toggleCooldown = false), TRANSITION_DELAY + 50);
-    this.itemsContainer.classList.add("clip");
-    if (this.open) {
-      await this.snapHeight(this.measureContainer.scrollHeight);
-      this.open = false;
-      await this.flowHeight(0);
-    } else {
-      await this.flowHeight(this.measureContainer.scrollHeight);
-      this.open = true;
-      setTimeout(() => this.snapHeight(1e6), TRANSITION_DELAY + 50);
-      setTimeout(
-        () => this.itemsContainer.classList.remove("clip"),
-        TRANSITION_DELAY + 50
-      );
-    }
+    this.open = this.open == false;
 
     // Accessibility
     if (this._config.clickable) {
@@ -240,25 +201,9 @@ class FoldEntityRow extends LitElement {
     }
   }
 
-  firstUpdated() {
-    if (this._config.open) {
-      this.itemsContainer.style.maxHeight = "1000000px";
-    } else {
-      this.itemsContainer.style.maxHeight = "0px";
-      this.itemsContainer.classList.add("clip");
-    }
-  }
-
   connectedCallback(): void {
     super.connectedCallback();
-    this.updateComplete.then(() => {
-      if (this._config.open) {
-        this.itemsContainer.style.maxHeight = "1000000px";
-      } else {
-        this.itemsContainer.style.maxHeight = "0px";
-        this.itemsContainer.classList.add("clip");
-      }
-    });
+
     window.setTimeout(() => {
       if (!this.isConnected || this.entitiesWarning) return;
       findParentCard(this).then((result) => {
@@ -315,10 +260,9 @@ class FoldEntityRow extends LitElement {
         aria-hidden="${String(!this.open)}"
         aria-expanded="${String(this.open)}"
         style=${`padding-left: ${this._config.padding}px;`}
-        class=${this._config.no_animation ? "notransition" : ""}
       >
         <div id="measure">
-          ${this.rows?.map((row) => html`<div>${row}</div>`)}
+          ${this.open ? this.rows?.map((row) => html`<div>${row}</div>`) : ""}
         </div>
       </div>
     `;
@@ -330,7 +274,6 @@ class FoldEntityRow extends LitElement {
         display: flex;
         align-items: center;
         --toggle-icon-width: 32px;
-        margin-right: -8px;
       }
       #head :not(ha-icon) {
         flex-grow: 1;
@@ -364,14 +307,9 @@ class FoldEntityRow extends LitElement {
       #items {
         padding: 0;
         margin: 0;
-        transition: max-height ${TRANSITION_DELAY}ms ease-in-out;
         height: 100%;
-      }
-      #items.clip {
-        overflow: hidden;
-      }
-      #items.notransition {
-        transition: none;
+        overflow-x: hidden:
+        overflow-y: visible;
       }
 
       #measure > * {
