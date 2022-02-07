@@ -1,9 +1,8 @@
-import { LitElement, html, css, noChange } from "lit";
-import { property, query } from "lit/decorators.js";
-import { hass } from "card-tools/src/hass";
+import { LitElement, html, css } from "lit";
+import { property } from "lit/decorators.js";
 import pjson from "../package.json";
 import { selectTree } from "card-tools/src/helpers";
-import { Directive, directive } from "lit/directive.js";
+import { findParentCard, actionHandlerBind, actionHandler } from "./helpers.js";
 
 interface LovelaceElement extends HTMLElement {
   hass?: any;
@@ -35,40 +34,6 @@ function ensureObject(config: any) {
   return typeof config === "string" ? { entity: config } : config;
 }
 
-export async function findParentCard(
-  node: any,
-  step = 0
-): Promise<any | false> {
-  if (step == 100) return false;
-  if (!node) return false;
-
-  if (node.localName === "hui-entities-card") return node;
-  if (node.localName === "hui-picture-elements-card") return node;
-
-  if (node.updateComplete) await node.updateComplete;
-  if (node.parentElement) return findParentCard(node.parentElement, step + 1);
-  else if (node.parentNode) return findParentCard(node.parentNode, step + 1);
-  if ((node as any).host) return findParentCard(node.host, step + 1);
-  return false;
-}
-
-const actionHandlerBind = (element, options) => {
-  const actionHandler: any = document.body.querySelector("action-handler");
-  if (!actionHandler) return;
-  actionHandler.bind(element, options);
-};
-
-const actionHandler = directive(
-  class extends Directive {
-    update(part, [options]) {
-      actionHandlerBind(part.element, options);
-      return noChange;
-    }
-
-    render(_options) {}
-  }
-);
-
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
   @property() head?: LovelaceElement;
@@ -76,12 +41,17 @@ class FoldEntityRow extends LitElement {
   @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
+  _hassResolve?: any;
 
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
     this.open = this.open ?? this._config.open ?? false;
 
-    let head = ensureObject(config.entity || config.head);
+    this._finishSetup();
+  }
+
+  async _finishSetup() {
+    let head = ensureObject(this._config.entity || this._config.head);
     if (!head) {
       throw new Error("No fold head specified");
     }
@@ -95,9 +65,12 @@ class FoldEntityRow extends LitElement {
     // - config entities: (this allows auto-population of the list)
     // - config items: (for backwards compatibility - not recommended)
     // - The group specified as head
-    let items = config.entities || config.items;
+    let items = this._config.entities || this._config.items;
     if (head.entity && items === undefined) {
-      items = hass().states[head.entity]?.attributes?.entity_id;
+      if (this.hass === undefined)
+        await new Promise((resolve) => (this._hassResolve = resolve));
+      this._hassResolve = undefined;
+      items = this._hass.states[head.entity]?.attributes?.entity_id;
     }
     if (items === undefined) {
       throw new Error("No entities specified.");
@@ -106,29 +79,27 @@ class FoldEntityRow extends LitElement {
       throw new Error("Entities must be a list.");
     }
 
-    (async () => {
-      this.head = await this._createRow(head, true);
+    this.head = await this._createRow(head, true);
 
-      if (this._config.clickable) {
-        actionHandlerBind(this.head, {});
-        this.head.addEventListener(
-          "action",
-          (ev: CustomEvent) => this.toggle(ev),
-          {
-            capture: true,
-          }
-        );
-        this.head.tabIndex = 0;
-        this.head.setAttribute("role", "switch");
-        this.head.ariaLabel = this.open
-          ? "Toggle fold closed"
-          : "Toggle fold open";
-      }
-
-      this.rows = await Promise.all(
-        items.map(async (i) => this._createRow(ensureObject(i)))
+    if (this._config.clickable) {
+      actionHandlerBind(this.head, {});
+      this.head.addEventListener(
+        "action",
+        (ev: CustomEvent) => this.toggle(ev),
+        {
+          capture: true,
+        }
       );
-    })();
+      this.head.tabIndex = 0;
+      this.head.setAttribute("role", "switch");
+      this.head.ariaLabel = this.open
+        ? "Toggle fold closed"
+        : "Toggle fold open";
+    }
+
+    this.rows = await Promise.all(
+      items.map(async (i) => this._createRow(ensureObject(i)))
+    );
   }
 
   async _createRow(config: any, head = false) {
@@ -191,6 +162,7 @@ class FoldEntityRow extends LitElement {
     this._hass = hass;
     this.rows?.forEach((e) => (e.hass = hass));
     if (this.head) this.head.hass = hass;
+    if (this._hassResolve) this._hassResolve();
   }
 
   async updated(changedProperties) {
