@@ -157,7 +157,7 @@ tap_action:
   fold_row: true
 ```
 
-- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `cickable: false`. \
+- Fold entity row will try to figure out if the header should be clickable to show and hide the fold or not. If it guesses wrong, you can help it with `clickable: true` or `clickable: false`. \
   This should only be used in exceptions, though. If your row supports `tap_action` use `fire-dom-event` instead.
 
 ## Advanced
