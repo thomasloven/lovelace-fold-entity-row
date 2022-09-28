@@ -51,7 +51,7 @@ class FoldEntityRow extends LitElement {
   }
 
   async _finishSetup() {
-    let head = ensureObject(this._config.entity || this._config.head);
+    let head = ensureObject(this._config.head || this._config.entity);
     if (!head) {
       throw new Error("No fold head specified");
     }
