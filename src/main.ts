@@ -280,7 +280,6 @@ class FoldEntityRow extends LitElement {
         padding: 0;
         margin: 0;
         height: 100%;
-        overflow-x: hidden:
         overflow-y: visible;
       }
 
