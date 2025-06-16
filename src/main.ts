@@ -215,7 +215,7 @@ class FoldEntityRow extends LitElement {
       <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
         ${until(this.head, "")}
         <ha-icon
-          icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
+          icon="mdi:chevron-down"
           @action=${this.toggle}
           .actionHandler=${actionHandler({})}
           role="${this._config.clickable ? "" : "switch"}"
@@ -226,6 +226,7 @@ class FoldEntityRow extends LitElement {
             : this.open
             ? "Toggle fold closed"
             : "Toggle fold open"}"
+          class="${this.open ? "open" : ""}"
         ></ha-icon>
       </div>
 
@@ -262,10 +263,14 @@ class FoldEntityRow extends LitElement {
         border-radius: 50%;
         background-size: cover;
         --mdc-icon-size: var(--toggle-icon-width);
+        transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
       }
       ha-icon:focus {
         outline: none;
         background: var(--divider-color);
+      }
+      ha-icon.open {
+        transform: rotate(180deg);
       }
       :host(.section-head) ha-icon {
         margin-top: 16px;
