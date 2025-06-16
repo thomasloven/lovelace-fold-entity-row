@@ -1,5 +1,5 @@
 import { LitElement, html, css } from "lit";
-import { property } from "lit/decorators.js";
+import { property, query, state } from "lit/decorators.js";
 import { until } from "lit/directives/until.js";
 import pjson from "../package.json";
 import { selectTree } from "./selecttree";
@@ -36,10 +36,12 @@ function ensureObject(config: any) {
 }
 
 class FoldEntityRow extends LitElement {
-  @property() open: boolean;
+  @property() open: boolean = false;
   @property() head?: Promise<LovelaceElement>;
   @property() rows?: Promise<LovelaceElement>[];
   @property() entitiesWarning = false;
+  @state() _showContent = this.open;
+  @query(".container") _container: HTMLDivElement;
   _config: FoldEntityRowConfig;
   _hass: any;
   _hassResolve?: any;
@@ -151,7 +153,26 @@ class FoldEntityRow extends LitElement {
 
   async toggle(ev: CustomEvent) {
     if (ev) ev.stopPropagation();
-    this.open = this.open == false;
+    const newOpen = !this.open;
+
+    this._container.style.overflow = "hidden";
+    if (newOpen) {
+      console.log("Opening");
+      this._showContent = true;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    const scrollHeight = this._container.scrollHeight;
+    this._container.style.height = `${scrollHeight}px`;
+
+    if (!newOpen) {
+      console.log("Closing");
+      setTimeout(() => {
+        this._container.style.height = "0px";
+      }, 0);
+    }
+
+    this.open = newOpen;
 
     // Accessibility
     if (this._config.clickable) {
@@ -210,9 +231,19 @@ class FoldEntityRow extends LitElement {
     }
   }
 
+  _transitionEnd(ev: Event) {
+    this._container.style.removeProperty("height");
+    this._container.style.overflow = this.open ? "initial" : "hidden";
+    this._showContent = this.open;
+  }
+
   render() {
     return html`
-      <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
+      <div
+        id="head"
+        @ll-custom=${this._customEvent}
+        aria-expanded="${String(this.open)}"
+      >
         ${until(this.head, "")}
         <ha-icon
           icon="mdi:chevron-down"
@@ -231,17 +262,14 @@ class FoldEntityRow extends LitElement {
       </div>
 
       <div
-        id="items"
-        ?open=${this.open}
-        aria-hidden="${String(!this.open)}"
-        aria-expanded="${String(this.open)}"
+        role="region"
+        aria-hidden="${!this.open}"
         style=${`padding-left: ${this._config.padding}px;`}
+        class="container ${this.open ? "expanded" : ""}"
+        tabindex="-1"
+        @transitionend=${this._transitionEnd}
       >
-        <div id="measure">
-          ${this.open
-            ? this.rows?.map((row) => html`<div>${until(row, "")}</div>`)
-            : ""}
-        </div>
+        ${this.rows?.map((row) => html`<div>${until(row, "")}</div>`)}
       </div>
     `;
   }
@@ -257,6 +285,16 @@ class FoldEntityRow extends LitElement {
         flex-grow: 1;
         max-width: calc(100% - var(--toggle-icon-width));
       }
+      #head :not(ha-icon):focus-visible {
+        outline: none;
+        background: var(--divider-color);
+        border-radius: 24px;
+        background-size: cover;
+      }
+      #head :not(ha-icon):focus {
+        outline: none;
+      }
+
       ha-icon {
         width: var(--toggle-icon-width);
         cursor: pointer;
@@ -272,35 +310,19 @@ class FoldEntityRow extends LitElement {
       ha-icon.open {
         transform: rotate(180deg);
       }
+
       :host(.section-head) ha-icon {
         margin-top: 16px;
       }
 
-      #head :not(ha-icon):focus-visible {
-        outline: none;
-        background: var(--divider-color);
-        border-radius: 24px;
-        background-size: cover;
-      }
-      #head :not(ha-icon):focus {
-        outline: none;
+      .container {
+        overflow: hidden;
+        transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        height: 0px;
       }
 
-      #items {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        overflow-y: visible;
-      }
-
-      #measure > * {
-        margin: 8px 0;
-      }
-      #measure > *:first-child {
-        margin-top: 0;
-      }
-      #measure > *:last-child {
-        margin-bottom: 0;
+      .container.expanded {
+        height: auto;
       }
     `;
   }
