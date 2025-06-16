@@ -1,7 +1,8 @@
 import { LitElement, html, css } from "lit";
 import { property } from "lit/decorators.js";
+import { until } from "lit/directives/until.js";
 import pjson from "../package.json";
-import { selectTree } from "card-tools/src/helpers";
+import { selectTree } from "./selecttree";
 import { findParentCard, actionHandlerBind, actionHandler } from "./helpers.js";
 
 interface LovelaceElement extends HTMLElement {
@@ -36,8 +37,8 @@ function ensureObject(config: any) {
 
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
-  @property() head?: LovelaceElement;
-  @property() rows?: LovelaceElement[];
+  @property() head?: Promise<LovelaceElement>;
+  @property() rows?: Promise<LovelaceElement>[];
   @property() entitiesWarning = false;
   _config: FoldEntityRowConfig;
   _hass: any;
@@ -79,30 +80,33 @@ class FoldEntityRow extends LitElement {
       throw new Error("Entities must be a list.");
     }
 
-    this.head = await this._createRow(head, true);
+    this.head = this._createRow(head, true);
 
     if (this._config.clickable) {
-      actionHandlerBind(this.head, {});
-      this.head.addEventListener(
-        "action",
-        (ev: CustomEvent) => this.toggle(ev),
-        {
-          capture: true,
+      this.head.then(async (head) => {
+        const el = await selectTree(head, "$hui-generic-entity-row$div");
+        if (el?.actionHandler) {
+          const hger = await selectTree(head, "$hui-generic-entity-row");
+          hger.config["tap_action"] = {
+            action: "fire-dom-event",
+            fold_row: true,
+          };
+        } else {
+          actionHandlerBind(head, { fold_entity_row: true });
+          head.addEventListener("action", (ev: CustomEvent) => this.toggle(ev));
         }
-      );
-      this.head.tabIndex = 0;
-      this.head.setAttribute("role", "switch");
-      this.head.ariaLabel = this.open
-        ? "Toggle fold closed"
-        : "Toggle fold open";
+
+        head.tabIndex = 0;
+        head.setAttribute("role", "switch");
+        head.ariaLabel = this.open ? "Toggle fold closed" : "Toggle fold open";
+        head.ariaChecked = this.open ? "true" : "false";
+      });
     }
 
-    this.rows = await Promise.all(
-      items.map(async (i) => this._createRow(ensureObject(i)))
-    );
+    this.rows = items.map(async (i) => this._createRow(ensureObject(i)));
   }
 
-  async _createRow(config: any, head = false) {
+  async _createRow(config: any, head = false): Promise<LovelaceElement> {
     const helpers = await (window as any).loadCardHelpers();
     const parentCard = await findParentCard(this);
     const state_color =
@@ -151,17 +155,16 @@ class FoldEntityRow extends LitElement {
 
     // Accessibility
     if (this._config.clickable) {
-      this.head.ariaLabel = this.open
-        ? "Toggle fold closed"
-        : "Toggle fold open";
-      this.head.ariaChecked = this.open ? "true" : "false";
+      const head = await this.head;
+      head.ariaLabel = this.open ? "Toggle fold closed" : "Toggle fold open";
+      head.ariaChecked = this.open ? "true" : "false";
     }
   }
 
   set hass(hass: any) {
     this._hass = hass;
-    this.rows?.forEach((e) => (e.hass = hass));
-    if (this.head) this.head.hass = hass;
+    this.rows?.forEach(async (e) => ((await e).hass = hass));
+    if (this.head) this.head.then((head) => (head.hass = hass));
     if (this._hassResolve) this._hassResolve();
   }
 
@@ -210,7 +213,7 @@ class FoldEntityRow extends LitElement {
   render() {
     return html`
       <div id="head" @ll-custom=${this._customEvent} ?open=${this.open}>
-        ${this.head}
+        ${until(this.head, "")}
         <ha-icon
           icon=${this.open ? "mdi:chevron-up" : "mdi:chevron-down"}
           @action=${this.toggle}
@@ -234,7 +237,9 @@ class FoldEntityRow extends LitElement {
         style=${`padding-left: ${this._config.padding}px;`}
       >
         <div id="measure">
-          ${this.open ? this.rows?.map((row) => html`<div>${row}</div>`) : ""}
+          ${this.open
+            ? this.rows?.map((row) => html`<div>${until(row, "")}</div>`)
+            : ""}
         </div>
       </div>
     `;
