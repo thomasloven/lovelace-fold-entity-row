@@ -36,11 +36,11 @@ function ensureObject(config: any) {
 }
 
 class FoldEntityRow extends LitElement {
-  @property() open: boolean = false;
+  @property() open: boolean;
   @property() head?: Promise<LovelaceElement>;
   @property() rows?: Promise<LovelaceElement>[];
   @property() entitiesWarning = false;
-  @state() _showContent = this.open;
+  @state() _showContent;
   @query(".container") _container: HTMLDivElement;
   _config: FoldEntityRowConfig;
   _hass: any;
@@ -49,6 +49,7 @@ class FoldEntityRow extends LitElement {
   setConfig(config: FoldEntityRowConfig) {
     this._config = config = Object.assign({}, DEFAULT_CONFIG, config);
     this.open = this.open ?? this._config.open ?? false;
+    this._showContent = this.open;
 
     this._finishSetup();
   }
@@ -157,7 +158,6 @@ class FoldEntityRow extends LitElement {
 
     this._container.style.overflow = "hidden";
     if (newOpen) {
-      console.log("Opening");
       this._showContent = true;
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
@@ -166,7 +166,6 @@ class FoldEntityRow extends LitElement {
     this._container.style.height = `${scrollHeight}px`;
 
     if (!newOpen) {
-      console.log("Closing");
       setTimeout(() => {
         this._container.style.height = "0px";
       }, 0);

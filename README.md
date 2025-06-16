@@ -181,7 +181,7 @@ entities:
               - light.bed_light
 ```
 
-- Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) or [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
+- Folds can be populated by any wrapping element that fills the `entities:` parameter, such as [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
 ```yaml
 type: entities
@@ -196,6 +196,8 @@ entities:
         type: section
         label: Automatically populated
 ```
+
+> Note: While the built-in `entity-filter` also does work, it is not recommended due to performance issues.
 
 ![advanced](https://user-images.githubusercontent.com/1299821/59793890-ed65b380-92d7-11e9-9ed6-8dc1c15d749b.png)
 
