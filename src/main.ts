@@ -38,12 +38,12 @@ function ensureObject(config: any) {
 class FoldEntityRow extends LitElement {
   @property() open: boolean;
   @property() head?: Promise<LovelaceElement>;
-  @property() rows?: Promise<LovelaceElement>[];
+  @property() rows?: LovelaceElement[];
   @property() entitiesWarning = false;
+  @property() hass: any;
   @state() _showContent;
   @query(".container") _container: HTMLDivElement;
   _config: FoldEntityRowConfig;
-  _hass: any;
   _hassResolve?: any;
 
   setConfig(config: FoldEntityRowConfig) {
@@ -51,10 +51,12 @@ class FoldEntityRow extends LitElement {
     this.open = this.open ?? this._config.open ?? false;
     this._showContent = this.open;
 
-    this._finishSetup();
+    this._load_head();
+    this.rows = [];
+    if (this._config.open) this._load_rows();
   }
 
-  async _finishSetup() {
+  async _load_head() {
     let head = ensureObject(this._config.entity || this._config.head);
     if (!head) {
       throw new Error("No fold head specified");
@@ -63,24 +65,6 @@ class FoldEntityRow extends LitElement {
       if (head.entity === undefined && head.tap_action === undefined) {
         this._config.clickable = true;
       }
-    }
-
-    // Items are taken from the first available of the following
-    // - config entities: (this allows auto-population of the list)
-    // - config items: (for backwards compatibility - not recommended)
-    // - The group specified as head
-    let items = this._config.entities || this._config.items;
-    if (head.entity && items === undefined) {
-      if (this.hass === undefined)
-        await new Promise((resolve) => (this._hassResolve = resolve));
-      this._hassResolve = undefined;
-      items = this._hass.states[head.entity]?.attributes?.entity_id;
-    }
-    if (items === undefined) {
-      throw new Error("No entities specified.");
-    }
-    if (!items || !Array.isArray(items)) {
-      throw new Error("Entities must be a list.");
     }
 
     this.head = this._createRow(head, true);
@@ -105,8 +89,36 @@ class FoldEntityRow extends LitElement {
         head.ariaChecked = this.open ? "true" : "false";
       });
     }
+  }
 
-    this.rows = items.map(async (i) => this._createRow(ensureObject(i)));
+  async _load_rows() {
+    if (this.rows.length) return this.rows;
+    let head = ensureObject(this._config.entity || this._config.head);
+
+    // Items are taken from the first available of the following
+    // - config entities: (this allows auto-population of the list)
+    // - config items: (for backwards compatibility - not recommended)
+    // - The group specified as head
+    let items = this._config.entities || this._config.items;
+    if (head.entity && items === undefined) {
+      if (this.hass === undefined) {
+        await new Promise((resolve) => (this._hassResolve = resolve));
+      }
+      this._hassResolve = undefined;
+      items = this.hass.states[head.entity]?.attributes?.entity_id;
+    }
+    if (items === undefined) {
+      throw new Error("No entities specified.");
+    }
+    if (!items || !Array.isArray(items)) {
+      throw new Error("Entities must be a list.");
+    }
+
+    this.rows = await Promise.all(
+      items.map(async (i) => {
+        return await this._createRow(ensureObject(i));
+      })
+    );
   }
 
   async _createRow(config: any, head = false): Promise<LovelaceElement> {
@@ -124,8 +136,8 @@ class FoldEntityRow extends LitElement {
 
     const el = helpers.createRowElement(config);
     this.applyStyle(el, config, head);
-    if (this._hass) {
-      el.hass = this._hass;
+    if (this.hass) {
+      el.hass = this.hass;
     }
 
     return el;
@@ -159,6 +171,7 @@ class FoldEntityRow extends LitElement {
     this._container.style.overflow = "hidden";
     if (newOpen) {
       this._showContent = true;
+      await this._load_rows();
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
@@ -181,18 +194,16 @@ class FoldEntityRow extends LitElement {
     }
   }
 
-  set hass(hass: any) {
-    this._hass = hass;
-    this.rows?.forEach(async (e) => ((await e).hass = hass));
-    if (this.head) this.head.then((head) => (head.hass = hass));
-    if (this._hassResolve) this._hassResolve();
-  }
-
   async updated(changedProperties) {
     super.updated(changedProperties);
     if (changedProperties.has("open")) {
       if ((this as any)._cardMod)
         (this as any)._cardMod.forEach((cm) => cm.refresh());
+    }
+    if (changedProperties.has("hass")) {
+      this.rows?.forEach((e) => (e.hass = this.hass));
+      if (this.head) this.head.then((head) => (head.hass = this.hass));
+      if (this._hassResolve) this._hassResolve();
     }
   }
 
@@ -268,7 +279,7 @@ class FoldEntityRow extends LitElement {
         tabindex="-1"
         @transitionend=${this._transitionEnd}
       >
-        ${this.rows?.map((row) => html`<div>${until(row, "")}</div>`)}
+        ${this.rows?.map((row) => html`<div>${row}</div>`)}
       </div>
     `;
   }
