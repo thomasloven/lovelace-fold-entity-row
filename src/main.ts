@@ -176,7 +176,7 @@ class FoldEntityRow extends LitElement {
     }
 
     const scrollHeight = this._container.scrollHeight;
-    this._container.style.height = `${scrollHeight}px`;
+    this._container.style.height = scrollHeight ? `${scrollHeight}px` : "auto";
 
     if (!newOpen) {
       setTimeout(() => {
